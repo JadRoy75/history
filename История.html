@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History Quizlet - Гражданская война</title>
+    <style>
+        :root {
+            --primary: #4255ff;
+            --bg: #f6f7fb;
+            --card-bg: #ffffff;
+            --text: #2e3856;
+            --error: #ff5252;
+            --success: #2ecc71;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* Навигация */
+        .nav {
+            margin-bottom: 30px;
+            background: white;
+            padding: 10px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .nav button {
+            background: none;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #586380;
+            transition: 0.3s;
+            border-radius: 8px;
+        }
+
+        .nav button:hover {
+            background-color: #f0f4ff;
+        }
+
+        .nav button.active {
+            color: var(--primary);
+            background-color: #eef1ff;
+        }
+
+        /* Контейнер приложения */
+        #app {
+            width: 100%;
+            max-width: 600px;
+            perspective: 1000px;
+        }
+
+        /* === РЕЖИМ КАРТОЧЕК === */
+        .flashcard-container {
+            width: 100%;
+            height: 400px; /* Чуть увеличил высоту */
+            position: relative;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+
+        .flashcard-container.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            padding: 20px;
+            text-align: center;
+            box-sizing: border-box;
+            font-size: 1.2rem;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+            background-color: #fdfdfd;
+            border: 2px solid var(--primary);
+            font-size: 1rem;
+            overflow-y: auto; /* На случай длинного текста */
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+        
+        .btn:hover { background: #3040d6; }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
+
+        /* === ОБЩИЕ СТИЛИ ДЛЯ ТЕСТОВ === */
+        .quiz-card {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .question {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        /* Портреты */
+        .portrait-img {
+            max-width: 100%;
+            max-height: 250px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            object-fit: contain;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        /* === КНОПКИ ВЫБОРА === */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .option-btn {
+            background: white;
+            border: 2px solid #e0e0e0;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: left;
+            font-size: 1rem;
+        }
+
+        .option-btn:hover { border-color: var(--primary); background: #f0f4ff; }
+        .option-btn.correct { background: var(--success); color: white; border-color: var(--success); }
+        .option-btn.wrong { background: var(--error); color: white; border-color: var(--error); }
+
+        /* === ПОЛЯ ВВОДА === */
+        .write-input {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .write-input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            font-weight: bold;
+            display: none;
+            padding: 10px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="nav">
+        <button onclick="setMode('cards')" id="btn-cards" class="active">Карточки</button>
+        <button onclick="setMode('learn')" id="btn-learn">Тест (Легко)</button>
+        <button onclick="setMode('write')" id="btn-write">Письмо (Сложно)</button>
+        <button onclick="setMode('portraits')" id="btn-portraits">📷 Портреты</button>
+    </nav>
+
+    <div id="app">
+        </div>
+
+<script>
+    // === БАЗА ДАННЫХ ===
+    // В поле 'img' укажи точные названия файлов из твоей папки images/
+    const database = [
+        { id: 1, term: "Фрунзе", img: "Фрунзе.png", def: "Революционер, военачальник Красной армии. Командовал Восточным фронтом против Колчака и Южным против Врангеля." },
+        { id: 2, term: "Каледин", img: "Каледин.png", def: "Генерал, атаман Донского казачества. Возглавил антибольшевистское восстание на Дону в 1917." },
+        { id: 3, term: "Семёнов", img: "Семёнов.png", def: "Генерал, казачий атаман. Руководитель Белого движения в Забайкалье и на Дальнем Востоке." },
+        { id: 4, term: "Троцкий", img: "Троцкий.png", def: "Организатор Красной армии, председатель Реввоенсовета и нарком по военным делам." },
+        { id: 5, term: "Блюхер", img: "Блюхер.png", def: "Командир Красной армии (Урал, Дальний Восток). Штурмовал Перекоп. Первым награждён орденом Красного Знамени." },
+        { id: 6, term: "Махно", img: "Махно.png", def: "Анархист, лидер крестьянского движения на Украине. Вступал в союзы с красными против белых." },
+        { id: 7, term: "Дутов", img: "Дутов.png", def: "Атаман Оренбургского казачества. Поднял восстание, позже влился в армию Колчака." },
+        { id: 8, term: "Деникин", img: "Деникин.png", def: "Генерал Белого движения. Возглавлял Добровольческую армию и ВСЮР. Наступал на Москву." },
+        { id: 9, term: "Краснов", img: "Краснов.png", def: "Казачий атаман. Неудачный поход на Петроград (1917), затем глава Войска Донского." },
+        { id: 10, term: "Корнилов", img: "Корнилов.png", def: "Генерал. Пытался установить диктатуру (1917). Организатор Добровольческой армии. Погиб под Екатеринодаром." },
+        { id: 11, term: "Котовский", img: "Котовский.png", def: "Легендарный герой Гражданской войны, командир красной кавалерии." },
+        { id: 12, term: "Чапаев", img: "Чапаев.png", def: "Начдив 25-й дивизии красных. Погиб в 1919. Герой романа Фурманова и фильма." },
+        { id: 13, term: "Будённый", img: "Будённый.png", def: "Командующий Первой конной армией — главной ударной силой красных." },
+        { id: 14, term: "Ворошилов", img: "Ворошилов.png", def: "Член Реввоенсовета Первой конной армии, соратник Будённого." },
+        { id: 15, term: "Пилсудский", img: "Пилсудский.png", def: "Глава Польши (1918-1922). Создатель польской армии, воевавшей против большевиков." },
+        { id: 16, term: "Врангель", img: "Врангель.png", def: "Генерал («Чёрный барон»). Оборонял Крым после ухода Деникина. Организовал эвакуацию." },
+        { id: 17, term: "Юденич", img: "Юденич.png", def: "Генерал. Дважды наступал на Петроград из Прибалтики в 1919 году." },
+        { id: 18, term: "Колчак", img: "Колчак.png", def: "Адмирал. Верховный правитель России (Омск). Расстрелян большевиками." },
+        { id: 19, term: "Тухачевский", img: "Тухачевский.png", def: "Командующий красными на Восточном фронте и Западном фронте (наступление на Варшаву)." },
+        { id: 20, term: "Егоров", img: "Егоров.png", def: "Полковник царской армии, стал красным командармом. Воевал против Деникина и Польши." }
+    ];
+
+    // === СОСТОЯНИЕ ===
+    let state = {
+        mode: 'cards', // cards, learn, write, portraits
+        cardIndex: 0,
+        learnQueue: [],
+        inputLocked: false
+    };
+
+    const app = document.getElementById('app');
+
+    // === ИНИЦИАЛИЗАЦИЯ ===
+    function init() {
+        setMode('cards');
+    }
+
+    function setMode(mode) {
+        state.mode = mode;
+        state.cardIndex = 0;
+        state.inputLocked = false;
+        
+        // Подсветка кнопок
+        document.querySelectorAll('.nav button').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`btn-${mode}`).classList.add('active');
+        
+        // Сброс очереди обучения при входе в режимы тестов
+        if(mode !== 'cards') {
+             state.learnQueue = [...database].sort(() => Math.random() - 0.5);
+        }
+        
+        render();
+    }
+
+    // === РЕНДЕРИНГ ===
+    function render() {
+        app.innerHTML = '';
+        if (state.mode === 'cards') renderCards();
+        else if (state.mode === 'learn') renderLearn();
+        else if (state.mode === 'write') renderWrite();
+        else if (state.mode === 'portraits') renderPortraits();
+    }
+
+    // --- 1. КАРТОЧКИ ---
+    function renderCards() {
+        const item = database[state.cardIndex];
+        
+        const container = document.createElement('div');
+        container.innerHTML = `
+            <div class="flashcard-container" onclick="this.classList.toggle('flipped')">
+                <div class="card-face card-front">
+                    <img src="images/${item.img}" alt="${item.term}" style="max-height:150px; border-radius:50%; margin-bottom:15px; object-fit:cover; width:150px; height:150px;">
+                    <h2>${item.term}</h2>
+                    <p style="color:#888; font-size: 0.9rem; margin-top:20px;">(Кликни для описания)</p>
+                </div>
+                <div class="card-face card-back">
+                    <p>${item.def}</p>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="btn" onclick="prevCard()" ${state.cardIndex === 0 ? 'disabled' : ''}>← Назад</button>
+                <span style="align-self:center;">${state.cardIndex + 1} / ${database.length}</span>
+                <button class="btn" onclick="nextCard()" ${state.cardIndex === database.length - 1 ? 'disabled' : ''}>Вперед →</button>
+            </div>
+        `;
+        app.appendChild(container);
+    }
+    
+    function nextCard() { if(state.cardIndex < database.length-1) { state.cardIndex++; render(); }}
+    function prevCard() { if(state.cardIndex > 0) { state.cardIndex--; render(); }}
+
+    // --- 2. ТЕСТ (ВЫБОР) ---
+    function renderLearn() {
+        if (state.learnQueue.length === 0) return showWin();
+
+        const currentItem = state.learnQueue[0];
+        
+        // Генерация неправильных ответов
+        let distractors = database.filter(i => i.id !== currentItem.id).sort(() => Math.random() - 0.5).slice(0, 3);
+        let options = [...distractors, currentItem].sort(() => Math.random() - 0.5);
+
+        const card = document.createElement('div');
+        card.className = 'quiz-card';
+        card.innerHTML = `
+            <div class="question">${currentItem.def}</div>
+            <div class="options-grid" id="options-area"></div>
+            <div class="feedback" id="feedback"></div>
+        `;
+
+        const optionsArea = card.querySelector('#options-area');
+        options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt.term;
+            btn.onclick = () => checkLearn(opt.id, currentItem.id, btn);
+            optionsArea.appendChild(btn);
+        });
+        app.appendChild(card);
+    }
+
+    function checkLearn(selectedId, correctId, btn) {
+        if(state.inputLocked) return;
+        state.inputLocked = true;
+
+        const feedback = document.getElementById('feedback');
+        const buttons = document.querySelectorAll('.option-btn');
+
+        if (selectedId === correctId) {
+            btn.classList.add('correct');
+            feedback.innerText = "Верно!";
+            feedback.style.background = "#d4edda";
+            feedback.style.color = "#155724";
+            feedback.style.display = "block";
+            
+            setTimeout(() => {
+                state.learnQueue.shift();
+                state.inputLocked = false;
+                render();
+            }, 1000);
+        } else {
+            btn.classList.add('wrong');
+            // Показать правильный
+            buttons.forEach(b => {
+                if(b.innerText === database.find(i => i.id === correctId).term) b.classList.add('correct');
+            });
+            feedback.innerText = "Ошибка! Повторим это позже.";
+            feedback.style.background = "#f8d7da";
+            feedback.style.color = "#721c24";
+            feedback.style.display = "block";
+
+            requeueItem();
+            setTimeout(() => { state.inputLocked = false; render(); }, 2000);
+        }
+    }
+
+    // --- 3. ПИСЬМО (ОПИСАНИЕ -> ФАМИЛИЯ) ---
+    function renderWrite() {
+        if (state.learnQueue.length === 0) return showWin();
+
+        const currentItem = state.learnQueue[0];
+        const card = document.createElement('div');
+        card.className = 'quiz-card';
+        card.innerHTML = `
+            <div class="question">Кто это?<br><br><small>${currentItem.def}</small></div>
+            <input type="text" class="write-input" id="write-input" placeholder="Фамилия..." autocomplete="off">
+            <button class="btn" onclick="checkText('${currentItem.term}')">Проверить</button>
+            <div class="feedback" id="write-feedback"></div>
+        `;
+        app.appendChild(card);
+        setupInputEnter('write-input', () => checkText(currentItem.term));
+    }
+
+    // --- 4. ПОРТРЕТЫ (ФОТО -> ФАМИЛИЯ) ---
+    function renderPortraits() {
+        if (state.learnQueue.length === 0) return showWin();
+
+        const currentItem = state.learnQueue[0];
+        const card = document.createElement('div');
+        card.className = 'quiz-card';
+        
+        card.innerHTML = `
+            <div class="question">Кто изображен на портрете?</div>
+            
+            <img src="images/${currentItem.img}" class="portrait-img" alt="Скрыто">
+            
+            <input type="text" class="write-input" id="portrait-input" placeholder="Введите фамилию..." autocomplete="off">
+            <button class="btn" onclick="checkPortrait('${currentItem.term}')">Проверить</button>
+            <div class="feedback" id="port-feedback"></div>
+        `;
+        
+        app.appendChild(card);
+        setupInputEnter('portrait-input', () => checkPortrait(currentItem.term));
+    }
+
+    // Логика проверки текста (общая для Письма и Портретов)
+    function checkTextCommon(userVal, correctVal, feedbackId) {
+        const feedback = document.getElementById(feedbackId);
+        if(userVal.toLowerCase().trim() === correctVal.toLowerCase().trim()) {
+            feedback.innerText = "Верно!";
+            feedback.style.background = "#d4edda";
+            feedback.style.color = "#155724";
+            feedback.style.display = "block";
+            
+            setTimeout(() => {
+                state.learnQueue.shift();
+                render();
+            }, 1000);
+        } else {
+            feedback.innerHTML = `Неверно. Это: <strong>${correctVal}</strong>`;
+            feedback.style.background = "#f8d7da";
+            feedback.style.color = "#721c24";
+            feedback.style.display = "block";
+            
+            requeueItem();
+            setTimeout(() => { render(); }, 2500);
+        }
+    }
+
+    function checkText(correct) {
+        checkTextCommon(document.getElementById('write-input').value, correct, 'write-feedback');
+    }
+
+    function checkPortrait(correct) {
+        checkTextCommon(document.getElementById('portrait-input').value, correct, 'port-feedback');
+    }
+
+    // --- УТИЛИТЫ ---
+    function showWin() {
+        app.innerHTML = `<div class="quiz-card"><h2>Все выучено! 🎉</h2><p>Ты молодец.</p><button class="btn" onclick="init()">Заново</button></div>`;
+    }
+
+    function requeueItem() {
+        // Убираем первый элемент и вставляем его через 5 позиций
+        const item = state.learnQueue.shift();
+        const newIndex = Math.min(state.learnQueue.length, 5);
+        state.learnQueue.splice(newIndex, 0, item);
+    }
+
+    function setupInputEnter(id, callback) {
+        const input = document.getElementById(id);
+        input.focus();
+        input.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") callback();
+        });
+    }
+
+    // Запуск
+    init();
+
+</script>
+</body>
+</html>
