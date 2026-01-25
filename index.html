@@ -3,467 +3,462 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>History Quizlet - Гражданская война</title>
+    <title>Что скрывается за бесконечностью?</title>
     <style>
-        :root {
-            --primary: #4255ff;
-            --bg: #f6f7fb;
-            --card-bg: #ffffff;
-            --text: #2e3856;
-            --error: #ff5252;
-            --success: #2ecc71;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@300;500;800&display=swap');
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
+            margin: 0; overflow: hidden;
+            background: #0b0c10; color: #c5c6c7;
+            font-family: 'Exo 2', sans-serif; user-select: none;
         }
 
-        /* Навигация */
-        .nav {
-            margin-bottom: 30px;
-            background: white;
-            padding: 10px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 5px;
-        }
+        canvas { position: absolute; top: 0; left: 0; z-index: 1; }
 
-        .nav button {
-            background: none;
-            border: none;
-            padding: 10px 15px;
-            cursor: pointer;
-            font-weight: 600;
-            color: #586380;
-            transition: 0.3s;
-            border-radius: 8px;
-        }
+        header { position: absolute; top: 15px; width: 100%; text-align: center; z-index: 100; }
+        h1 { font-size: 2.5rem; color: #66fcf1; text-shadow: 0 0 15px rgba(102, 252, 241, 0.6); margin: 0; }
 
-        .nav button:hover {
-            background-color: #f0f4ff;
-        }
-
-        .nav button.active {
-            color: var(--primary);
-            background-color: #eef1ff;
-        }
-
-        /* Контейнер приложения */
-        #app {
-            width: 100%;
-            max-width: 600px;
-            perspective: 1000px;
-        }
-
-        /* === РЕЖИМ КАРТОЧЕК === */
-        .flashcard-container {
-            width: 100%;
-            height: 400px; /* Чуть увеличил высоту */
-            position: relative;
-            cursor: pointer;
-            transform-style: preserve-3d;
-            transition: transform 0.6s;
-        }
-
-        .flashcard-container.flipped {
-            transform: rotateY(180deg);
-        }
-
-        .card-face {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: var(--card-bg);
-            border-radius: 16px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-            padding: 20px;
-            text-align: center;
-            box-sizing: border-box;
-            font-size: 1.2rem;
-        }
-
-        .card-back {
-            transform: rotateY(180deg);
-            background-color: #fdfdfd;
-            border: 2px solid var(--primary);
-            font-size: 1rem;
-            overflow-y: auto; /* На случай длинного текста */
-        }
-
-        .controls {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
-
-        .btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: 0.2s;
-        }
-        
-        .btn:hover { background: #3040d6; }
-        .btn:disabled { background: #ccc; cursor: not-allowed; }
-
-        /* === ОБЩИЕ СТИЛИ ДЛЯ ТЕСТОВ === */
-        .quiz-card {
-            background: white;
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-
-        .question {
-            font-size: 1.2rem;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
-
-        /* Портреты */
-        .portrait-img {
-            max-width: 100%;
-            max-height: 250px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            object-fit: contain;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        /* === КНОПКИ ВЫБОРА === */
-        .options-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .option-btn {
-            background: white;
-            border: 2px solid #e0e0e0;
-            padding: 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.2s;
-            text-align: left;
-            font-size: 1rem;
-        }
-
-        .option-btn:hover { border-color: var(--primary); background: #f0f4ff; }
-        .option-btn.correct { background: var(--success); color: white; border-color: var(--success); }
-        .option-btn.wrong { background: var(--error); color: white; border-color: var(--error); }
-
-        /* === ПОЛЯ ВВОДА === */
-        .write-input {
-            width: 100%;
-            padding: 15px;
-            margin-bottom: 15px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            box-sizing: border-box;
-            text-align: center;
-        }
-
-        .write-input:focus {
-            border-color: var(--primary);
-            outline: none;
-        }
-
-        .feedback {
-            margin-top: 15px;
-            font-weight: bold;
+        #space-prompt {
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            font-size: 1.2rem; font-weight: 800; color: #45a29e;
+            background: rgba(11, 12, 16, 0.9); padding: 12px 30px; border-radius: 30px;
+            border: 2px solid #45a29e; z-index: 100; transition: 0.3s;
+            box-shadow: 0 0 15px rgba(69, 162, 158, 0.3);
             display: none;
-            padding: 10px;
-            border-radius: 8px;
         }
+        .pulse { animation: pulse 1.5s infinite; }
+        @keyframes pulse { 50% { opacity: 0.5; } }
+
+        #cosmic-object {
+            position: absolute; top: -500px; left: 50%; transform: translateX(-50%);
+            width: 300px; height: 300px; z-index: 5;
+            transition: top 2.5s cubic-bezier(0.25, 1, 0.5, 1);
+            filter: drop-shadow(0 0 30px rgba(102, 252, 241, 0.2));
+        }
+
+        #ship {
+            position: absolute; bottom: 15%; left: 50%; transform: translate(-50%, 0);
+            width: 90px; height: 130px; z-index: 50;
+            transition: all 3s cubic-bezier(0.25, 1, 0.5, 1);
+            filter: drop-shadow(0 0 15px rgba(102, 252, 241, 0.4));
+        }
+
+        #info-panel {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            width: 850px; max-width: 90%; max-height: 85vh; overflow-y: auto;
+            background: rgba(11, 12, 16, 0.95);
+            border-left: 5px solid #66fcf1; border-right: 5px solid #66fcf1;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            border-radius: 15px; padding: 40px;
+            z-index: 60; opacity: 0; pointer-events: none;
+            transition: all 0.5s ease; backdrop-filter: blur(10px);
+        }
+        #info-panel.visible { opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: all; }
+        h2 { color: #66fcf1; font-size: 2rem; margin-top: 0; text-align: center; }
+        h3 { color: #45a29e; border-bottom: 1px solid #1f2833; padding-bottom: 5px; margin-top: 15px; }
+        p, li { font-size: 1.15rem; line-height: 1.5; color: #e0e0e0; }
+
+        /* КВИЗЫ */
+        .quiz-btn {
+            display: block; width: 100%; background: #1f2833; color: #66fcf1;
+            border: 2px solid #45a29e; border-radius: 8px;
+            padding: 15px; font-size: 1.2rem; margin-bottom: 10px;
+            cursor: pointer; transition: 0.3s; font-family: 'Exo 2', sans-serif;
+            font-weight: bold;
+        }
+        .quiz-btn:hover { background: #45a29e; color: #0b0c10; transform: scale(1.02); }
+        .quiz-btn.correct { background: #4caf50 !important; color: white !important; border-color: #4caf50; }
+        .quiz-btn.wrong { background: #f44336 !important; color: white !important; border-color: #f44336; }
+
+        /* ИНТЕРАКТИВ */
+        .interactive-btn {
+            background: #45a29e; color: #0b0c10; border: none; padding: 10px 20px;
+            font-size: 1.1rem; font-weight: bold; border-radius: 10px; cursor: pointer;
+            transition: 0.3s; box-shadow: 0 5px 15px rgba(69, 162, 158, 0.3);
+        }
+        .interactive-btn:hover { background: #66fcf1; transform: translateY(-3px); }
+
+        /* ОТЕЛЬ ГИЛЬБЕРТА */
+        .hotel-container { overflow: hidden; width: 100%; position: relative; margin: 15px 0; }
+        .hotel { display: flex; gap: 15px; transition: transform 0.5s ease; padding: 10px; }
+        .room {
+            min-width: 80px; height: 80px; background: #1f2833; border: 3px solid #66fcf1;
+            border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-size: 1.5rem; position: relative; box-shadow: inset 0 0 10px #0b0c10;
+        }
+        .room-num { font-size: 0.8rem; color: #45a29e; position: absolute; top: 5px; }
+        .guest { font-size: 2.5rem; transition: 0.5s; }
+
+        /* ИНТЕРАКТИВ: ПОТЕНЦИАЛЬНАЯ VS АКТУАЛЬНАЯ И ПОЛЗУНКИ */
+        .infinity-sim { display: flex; gap: 20px; margin-top: 15px; }
+        .sim-box { flex: 1; background: #1f2833; padding: 15px; border-radius: 10px; text-align: center; border: 2px solid #45a29e; }
+        .sim-display { font-size: 2rem; color: #66fcf1; font-weight: bold; margin: 10px 0; height: 40px;}
+        input[type=range] { width: 80%; cursor: pointer; }
+
+        /* ЧЕРНАЯ ДЫРА (СТАРТУЕТ ЗА ПРЕДЕЛАМИ ЭКРАНА СВЕРХУ) */
+        #black-hole {
+            position: absolute; top: -600px; left: 50%; transform: translateX(-50%) scale(0.1);
+            width: 600px; height: 600px; border-radius: 50%;
+            background: radial-gradient(circle, #000000 30%, #1a052e 50%, transparent 100%);
+            box-shadow: inset 0 0 80px #000, 0 0 120px rgba(102, 252, 241, 0.5);
+            z-index: 45; transition: top 3s cubic-bezier(0.25, 1, 0.5, 1), transform 3s ease-in;
+            animation: spin 10s linear infinite;
+            display: none;
+        }
+        @keyframes spin { 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+        #black-hole.active { top: 50%; transform: translate(-50%, -50%) scale(1.5); }
+
+        #credits {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: black; z-index: 200;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 2s;
+        }
+        #credits h1 { font-size: 5rem; color: #66fcf1; text-shadow: 0 0 20px #45a29e; }
+        #credits p { font-size: 2.5rem; color: #45a29e; }
     </style>
 </head>
 <body>
 
-    <nav class="nav">
-        <button onclick="setMode('cards')" id="btn-cards" class="active">Карточки</button>
-        <button onclick="setMode('learn')" id="btn-learn">Тест (Легко)</button>
-        <button onclick="setMode('write')" id="btn-write">Письмо (Сложно)</button>
-        <button onclick="setMode('portraits')" id="btn-portraits">📷 Портреты</button>
-    </nav>
+    <header><h1>ЧТО СКРЫВАЕТСЯ ЗА БЕСКОНЕЧНОСТЬЮ?</h1></header>
 
-    <div id="app">
-        </div>
+    <canvas id="starfield"></canvas>
+    <div id="cosmic-object"></div>
+    <div id="black-hole"></div>
 
-<script>
-    // === БАЗА ДАННЫХ ===
-    // В поле 'img' укажи точные названия файлов из твоей папки images/
-    const database = [
-        { id: 1, term: "Фрунзе", img: "Фрунзе.png", def: "Революционер, военачальник Красной армии. Командовал Восточным фронтом против Колчака и Южным против Врангеля." },
-        { id: 2, term: "Каледин", img: "Каледин.png", def: "Генерал, атаман Донского казачества. Возглавил антибольшевистское восстание на Дону в 1917." },
-        { id: 3, term: "Семёнов", img: "Семёнов.png", def: "Генерал, казачий атаман. Руководитель Белого движения в Забайкалье и на Дальнем Востоке." },
-        { id: 4, term: "Троцкий", img: "Троцкий.png", def: "Организатор Красной армии, председатель Реввоенсовета и нарком по военным делам." },
-        { id: 5, term: "Блюхер", img: "Блюхер.png", def: "Командир Красной армии (Урал, Дальний Восток). Штурмовал Перекоп. Первым награждён орденом Красного Знамени." },
-        { id: 6, term: "Махно", img: "Махно.png", def: "Анархист, лидер крестьянского движения на Украине. Вступал в союзы с красными против белых." },
-        { id: 7, term: "Дутов", img: "Дутов.png", def: "Атаман Оренбургского казачества. Поднял восстание, позже влился в армию Колчака." },
-        { id: 8, term: "Деникин", img: "Деникин.png", def: "Генерал Белого движения. Возглавлял Добровольческую армию и ВСЮР. Наступал на Москву." },
-        { id: 9, term: "Краснов", img: "Краснов.png", def: "Казачий атаман. Неудачный поход на Петроград (1917), затем глава Войска Донского." },
-        { id: 10, term: "Корнилов", img: "Корнилов.png", def: "Генерал. Пытался установить диктатуру (1917). Организатор Добровольческой армии. Погиб под Екатеринодаром." },
-        { id: 11, term: "Котовский", img: "Котовский.png", def: "Легендарный герой Гражданской войны, командир красной кавалерии." },
-        { id: 12, term: "Чапаев", img: "Чапаев.png", def: "Начдив 25-й дивизии красных. Погиб в 1919. Герой романа Фурманова и фильма." },
-        { id: 13, term: "Будённый", img: "Будённый.png", def: "Командующий Первой конной армией — главной ударной силой красных." },
-        { id: 14, term: "Ворошилов", img: "Ворошилов.png", def: "Член Реввоенсовета Первой конной армии, соратник Будённого." },
-        { id: 15, term: "Пилсудский", img: "Пилсудский.png", def: "Глава Польши (1918-1922). Создатель польской армии, воевавшей против большевиков." },
-        { id: 16, term: "Врангель", img: "Врангель.png", def: "Генерал («Чёрный барон»). Оборонял Крым после ухода Деникина. Организовал эвакуацию." },
-        { id: 17, term: "Юденич", img: "Юденич.png", def: "Генерал. Дважды наступал на Петроград из Прибалтики в 1919 году." },
-        { id: 18, term: "Колчак", img: "Колчак.png", def: "Адмирал. Верховный правитель России (Омск). Расстрелян большевиками." },
-        { id: 19, term: "Тухачевский", img: "Тухачевский.png", def: "Командующий красными на Восточном фронте и Западном фронте (наступление на Варшаву)." },
-        { id: 20, term: "Егоров", img: "Егоров.png", def: "Полковник царской армии, стал красным командармом. Воевал против Деникина и Польши." }
-    ];
+    <div id="ship">
+        <svg viewBox="0 0 100 150">
+            <path d="M 40 120 Q 50 150 60 120" fill="#45a29e" filter="blur(3px)"/>
+            <path d="M 50 10 L 80 100 L 50 120 L 20 100 Z" fill="#e0e0e0"/>
+            <path d="M 50 30 Q 65 60 50 80 Q 35 60 50 30" fill="#66fcf1"/>
+            <path d="M 20 100 L 5 120 L 30 110 Z" fill="#45a29e"/>
+            <path d="M 80 100 L 95 120 L 70 110 Z" fill="#45a29e"/>
+        </svg>
+    </div>
 
-    // === СОСТОЯНИЕ ===
-    let state = {
-        mode: 'cards', // cards, learn, write, portraits
-        cardIndex: 0,
-        learnQueue: [],
-        inputLocked: false
-    };
+    <div id="info-panel">
+        <h2 id="info-title"></h2>
+        <div id="info-text"></div>
+    </div>
 
-    const app = document.getElementById('app');
+    <div id="space-prompt" class="pulse">НАЖМИТЕ ПРОБЕЛ, ЧТОБЫ НАЧАТЬ</div>
 
-    // === ИНИЦИАЛИЗАЦИЯ ===
-    function init() {
-        setMode('cards');
-    }
+    <div id="credits">
+        <h1>БЕСКОНЕЧНОСТЬ</h1>
+        <p>Подготовил 10 класс</p>
+    </div>
 
-    function setMode(mode) {
-        state.mode = mode;
-        state.cardIndex = 0;
-        state.inputLocked = false;
-        
-        // Подсветка кнопок
-        document.querySelectorAll('.nav button').forEach(btn => btn.classList.remove('active'));
-        document.getElementById(`btn-${mode}`).classList.add('active');
-        
-        // Сброс очереди обучения при входе в режимы тестов
-        if(mode !== 'cards') {
-             state.learnQueue = [...database].sort(() => Math.random() - 0.5);
+    <script>
+        // --- ДАННЫЕ И ТЕКСТЫ ---
+        const content = [
+            {
+                type: 'info', planet: '🌍', color: '#45a29e',
+                title: '1️⃣ Понятие бесконечности',
+                text: `<p>Бесконечность — это математическое понятие, которое означает, что у чего-то нет конца. Это не число, потому что любое число можно увеличить на 1, а у бесконечности нет последнего шага.</p>
+                       <p><b>Примеры:</b></p>
+                       <ul><li>ряд чисел: 1, 2, 3... — его нельзя закончить;</li><li>прямая линия — у неё нет ни начала, ни конца;</li><li>деление: число можно делить снова и снова.</li></ul>
+                       <p>Для обозначения используют знак ∞.</p>`
+            },
+            {
+                type: 'quiz', planet: '❓', color: '#66fcf1',
+                title: '❓ Вопрос 1: Суть бесконечности',
+                text: `<p>Является ли бесконечность обычным числом?</p>
+                       <button class="quiz-btn" onclick="checkAnswer(this, false)">Да, это самое большое число во Вселенной</button>
+                       <button class="quiz-btn" data-correct="true" onclick="checkAnswer(this, true)">Нет, это понятие/идея</button>`
+            },
+            {
+                type: 'info', planet: '🪐', color: '#ffb74d',
+                title: '2️⃣ История бесконечности',
+                text: `<h3>🏛 Древняя Греция</h3><p><b>Аристотель</b> считал, что бесконечность существует только как процесс. <b>Зенон Элейский</b> придумал знаменитые парадоксы (про Ахиллеса и черепаху).</p>
+                       <h3>📐 XVII век</h3><p><b>Джон Валлис</b> впервые ввёл знак ∞.</p>
+                       <h3>📊 XIX век</h3><p><b>Георг Кантор</b> доказал, что бесконечностей бывает несколько видов, и некоторые больше других.</p>`
+            },
+            {
+                type: 'quiz', planet: '❓', color: '#e0e0e0',
+                title: '❓ Вопрос 2: История',
+                text: `<p>Кто впервые ввел знак ∞ (лежащую восьмерку)?</p>
+                       <button class="quiz-btn" data-correct="true" onclick="checkAnswer(this, true)">Джон Валлис</button>
+                       <button class="quiz-btn" onclick="checkAnswer(this, false)">Георг Кантор</button>
+                       <button class="quiz-btn" onclick="checkAnswer(this, false)">Зенон Элейский</button>`
+            },
+            {
+                type: 'info', planet: '🌌', color: '#66fcf1',
+                title: '3️⃣ Виды бесконечностей',
+                text: `<p><b>Потенциальная</b> — это процесс (как счет). <b>Актуальная</b> — готовый объект (как все числа сразу).</p>
+                       <div class="infinity-sim">
+                           <div class="sim-box">
+                               <p><b>Потенциальная</b></p>
+                               <div class="sim-display" id="pot-count">0</div>
+                               <button class="interactive-btn" onclick="addPotential()">Считать +1</button>
+                           </div>
+                           <div class="sim-box">
+                               <p><b>Актуальная</b></p>
+                               <div class="sim-display" id="act-show">?</div>
+                               <button class="interactive-btn" onclick="document.getElementById('act-show').innerText = '{1, 2, 3... ∞}'">Увидеть всё</button>
+                           </div>
+                       </div>
+                       <hr style="border-color: #45a29e;">
+                       <p><b>🔢 Счётная:</b> Элементы можно пересчитать по порядку. Примеры: натуральные числа, чётные числа, этажи в бесконечном доме.</p>
+                       <p><b>🌊 Несчётная:</b> Её невозможно пронумеровать. Примеры: все числа между 0 и 1, все точки на отрезке, вещественные числа.</p>
+                       <div class="sim-box" style="margin-top: 15px;">
+                           <p style="margin-top:0;"><b>Лупа бесконечности:</b> Увеличь отрезок между 0 и 1.</p>
+                           <input type="range" min="1" max="10" value="1" oninput="document.getElementById('zoom-res').innerText = '0.' + '0'.repeat(this.value) + '1... и еще ∞ чисел'">
+                           <div id="zoom-res" style="font-size: 1.5rem; color: #66fcf1; font-weight: bold; margin-top: 5px;">0.1...</div>
+                       </div>`
+            },
+            {
+                type: 'info', planet: '🚀', color: '#45a29e',
+                title: '4️⃣ Теории и Парадоксы',
+                text: `<h3>🏨 Парадокс отеля Гильберта</h3>
+                       <p>В отеле бесконечно много комнат, и все они заняты. Но если придёт новый гость: каждый переезжает в следующую комнату (из 1 во 2, из 2 в 3 и так до бесконечности), и первая освобождается.</p>
+                       <div class="hotel-container">
+                           <div class="hotel" id="hotel-track">
+                               <div class="room"><span class="room-num">1</span><span class="guest">🐱</span></div>
+                               <div class="room"><span class="room-num">2</span><span class="guest">🐶</span></div>
+                               <div class="room"><span class="room-num">3</span><span class="guest">🦊</span></div>
+                               <div class="room"><span class="room-num">4</span><span class="guest">🐼</span></div>
+                               <div class="room" style="font-size: 2rem; color: #66fcf1; background: transparent; border:none;">...∞</div>
+                           </div>
+                       </div>
+                       <button class="interactive-btn" style="margin: 0 auto; display: block;" onclick="addGuest()">Заселить нового гостя!</button>
+                       
+                       <h3>🐢 Парадокс Ахиллеса и черепахи</h3>
+                       <p>Ахиллес быстрее, но пока он добегает до места, где была черепаха, она чуть отползает. Расстояние всегда делится, но никогда не становится нулем. В реальности он догонит, но парадокс показывает, что бесконечное деление пути ломает привычную логику.</p>
+                       <div style="background: #1f2833; height: 50px; position: relative; border-radius: 25px; margin: 15px 0; overflow: hidden; border: 2px solid #45a29e;">
+                           <span id="ach" style="position: absolute; font-size: 30px; left: 0%; top: 5px; transition: 0.5s;">🏃</span>
+                           <span id="tur" style="position: absolute; font-size: 30px; left: 50%; top: 5px; transition: 0.5s;">🐢</span>
+                       </div>
+                       <button class="interactive-btn" style="margin: 0 auto; display: block;" onclick="stepAchilles()">Сократить дистанцию вдвое!</button>`
+            },
+            {
+                type: 'quiz', planet: '❓', color: '#ffb74d',
+                title: '❓ Вопрос 3: Парадоксы',
+                text: `<p>Может ли бесконечный отель, в котором ВСЕ комнаты заняты, принять еще гостей?</p>
+                       <button class="quiz-btn" onclick="checkAnswer(this, false)">Нет, мест же нет</button>
+                       <button class="quiz-btn" data-correct="true" onclick="checkAnswer(this, true)">Да, если все подвинутся</button>`
+            },
+            {
+                type: 'info', planet: '🛰️', color: '#66fcf1',
+                title: '5️⃣ Использование в мире',
+                text: `<h3>📐 Математика</h3><p>Пределы и бесконечные последовательности, анализ функций, теория множеств.</p>
+                       <h3>💻 Информатика</h3><p>Бесконечные циклы, алгоритмы без заранее известного конца.</p>
+                       <h3>⚛ Физика и 🌌 Астрономия</h3>
+                       <p>Бесконечно малые величины, возможная бесконечность Вселенной, бесконечные расстояния и бесконечная плотность в чёрных дырах.</p>
+                       <div class="sim-box" style="margin-top: 15px; border-color: #66fcf1;">
+                           <p style="margin-top:0;"><b>Симулятор Черной дыры:</b> Сжимай звезду!</p>
+                           <input type="range" min="1" max="100" value="1" oninput="document.getElementById('density').innerText = this.value === '100' ? 'БЕСКОНЕЧНОСТЬ ∞' : this.value * 1000 + ' тонн/см³'">
+                           <div id="density" style="font-size: 1.5rem; color: #66fcf1; font-weight: bold; margin-top: 5px;">1000 тонн/см³</div>
+                       </div>`
+            },
+            {
+                type: 'quiz', planet: '❓', color: '#45a29e',
+                title: '❓ Вопрос 4: Физика',
+                text: `<p>Где в реальной физике встречается понятие бесконечной плотности?</p>
+                       <button class="quiz-btn" data-correct="true" onclick="checkAnswer(this, true)">В чёрных дырах</button>
+                       <button class="quiz-btn" onclick="checkAnswer(this, false)">В центре Солнца</button>`
+            },
+            {
+                type: 'info', planet: '📚', color: '#45a29e',
+                title: '6️⃣ Школа и Заключение',
+                text: `<p><b>Где бесконечность используется в школе:</b></p>
+                       <ul><li>счёт чисел и прямая линия;</li><li>дроби и графики функций;</li><li>пределы (в старших классах).</li></ul>
+                       <h3 style="color: #66fcf1; font-size: 1.5rem;">🏁 Заключение</h3>
+                       <p>Бесконечность меняет наше мышление, помогает описывать сложные процессы и используется в науке, технике и космосе.</p>`
+            }
+        ];
+
+        // --- КАНВАС КОСМОС ---
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        const stars = [];
+        for (let i = 0; i < 500; i++) stars.push({ x: Math.random() * width, y: Math.random() * height, z: Math.random() * 2 + 0.5 });
+
+        let speedMultiplier = 1;
+        let cosmicStopped = false;
+
+        function drawStars() {
+            ctx.fillStyle = '#0b0c10'; ctx.fillRect(0, 0, width, height); ctx.fillStyle = '#c5c6c7';
+            for (let star of stars) {
+                ctx.beginPath(); ctx.arc(star.x, star.y, star.z, 0, Math.PI * 2); ctx.fill();
+                if (!cosmicStopped) { star.y += star.z * speedMultiplier; if (star.y > height) star.y = 0; }
+            }
+            requestAnimationFrame(drawStars);
         }
-        
-        render();
-    }
+        drawStars();
+        window.addEventListener('resize', () => { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; });
 
-    // === РЕНДЕРИНГ ===
-    function render() {
-        app.innerHTML = '';
-        if (state.mode === 'cards') renderCards();
-        else if (state.mode === 'learn') renderLearn();
-        else if (state.mode === 'write') renderWrite();
-        else if (state.mode === 'portraits') renderPortraits();
-    }
+        // --- ЛОГИКА ---
+        let state = -1;
+        let isMoving = false;
+        let quizActive = false;
 
-    // --- 1. КАРТОЧКИ ---
-    function renderCards() {
-        const item = database[state.cardIndex];
-        
-        const container = document.createElement('div');
-        container.innerHTML = `
-            <div class="flashcard-container" onclick="this.classList.toggle('flipped')">
-                <div class="card-face card-front">
-                    <img src="images/${item.img}" alt="${item.term}" style="max-height:150px; border-radius:50%; margin-bottom:15px; object-fit:cover; width:150px; height:150px;">
-                    <h2>${item.term}</h2>
-                    <p style="color:#888; font-size: 0.9rem; margin-top:20px;">(Кликни для описания)</p>
-                </div>
-                <div class="card-face card-back">
-                    <p>${item.def}</p>
-                </div>
-            </div>
-            <div class="controls">
-                <button class="btn" onclick="prevCard()" ${state.cardIndex === 0 ? 'disabled' : ''}>← Назад</button>
-                <span style="align-self:center;">${state.cardIndex + 1} / ${database.length}</span>
-                <button class="btn" onclick="nextCard()" ${state.cardIndex === database.length - 1 ? 'disabled' : ''}>Вперед →</button>
-            </div>
-        `;
-        app.appendChild(container);
-    }
-    
-    function nextCard() { if(state.cardIndex < database.length-1) { state.cardIndex++; render(); }}
-    function prevCard() { if(state.cardIndex > 0) { state.cardIndex--; render(); }}
+        const panel = document.getElementById('info-panel');
+        const prompt = document.getElementById('space-prompt');
+        const ship = document.getElementById('ship');
+        const cosmicObject = document.getElementById('cosmic-object');
 
-    // --- 2. ТЕСТ (ВЫБОР) ---
-    function renderLearn() {
-        if (state.learnQueue.length === 0) return showWin();
+        function setPlanet(emoji, color) {
+            cosmicObject.innerHTML = `<svg viewBox="0 0 100 100" style="filter: drop-shadow(0 0 40px ${color});"><circle cx="50" cy="50" r="48" fill="${color}" fill-opacity="0.2" stroke="${color}" stroke-width="2"/><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-size="60">${emoji}</text></svg>`;
+        }
 
-        const currentItem = state.learnQueue[0];
-        
-        // Генерация неправильных ответов
-        let distractors = database.filter(i => i.id !== currentItem.id).sort(() => Math.random() - 0.5).slice(0, 3);
-        let options = [...distractors, currentItem].sort(() => Math.random() - 0.5);
-
-        const card = document.createElement('div');
-        card.className = 'quiz-card';
-        card.innerHTML = `
-            <div class="question">${currentItem.def}</div>
-            <div class="options-grid" id="options-area"></div>
-            <div class="feedback" id="feedback"></div>
-        `;
-
-        const optionsArea = card.querySelector('#options-area');
-        options.forEach(opt => {
-            const btn = document.createElement('button');
-            btn.className = 'option-btn';
-            btn.innerText = opt.term;
-            btn.onclick = () => checkLearn(opt.id, currentItem.id, btn);
-            optionsArea.appendChild(btn);
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && !isMoving && !quizActive && state === -1) {
+                advance();
+            } else if (e.code === 'Space' && !isMoving && !quizActive && content[state].type !== 'quiz') {
+                advance();
+            }
         });
-        app.appendChild(card);
-    }
 
-    function checkLearn(selectedId, correctId, btn) {
-        if(state.inputLocked) return;
-        state.inputLocked = true;
+        prompt.style.display = 'block';
 
-        const feedback = document.getElementById('feedback');
-        const buttons = document.querySelectorAll('.option-btn');
+        function advance() {
+            isMoving = true;
+            panel.classList.remove('visible');
+            prompt.style.display = 'none';
+            speedMultiplier = 15; 
 
-        if (selectedId === correctId) {
-            btn.classList.add('correct');
-            feedback.innerText = "Верно!";
-            feedback.style.background = "#d4edda";
-            feedback.style.color = "#155724";
-            feedback.style.display = "block";
-            
+            state++;
+
+            if (state >= content.length) { finalAnimation(); return; }
+
+            cosmicObject.style.top = '120vh'; 
+
+            quizActive = content[state].type === 'quiz';
+
             setTimeout(() => {
-                state.learnQueue.shift();
-                state.inputLocked = false;
-                render();
+                setPlanet(content[state].planet, content[state].color);
+                cosmicObject.style.transition = 'none';
+                cosmicObject.style.top = '-300px';
+
+                setTimeout(() => {
+                    cosmicObject.style.transition = 'top 2.5s cubic-bezier(0.25, 1, 0.5, 1)';
+                    cosmicObject.style.top = '20%';
+
+                    setTimeout(() => {
+                        speedMultiplier = 1; 
+                        document.getElementById('info-title').innerText = content[state].title;
+                        document.getElementById('info-text').innerHTML = content[state].text;
+                        panel.classList.add('visible');
+                        
+                        if (!quizActive) {
+                            prompt.innerText = "ПРОБЕЛ — ЛЕТЕТЬ ДАЛЬШЕ";
+                            prompt.style.display = 'block';
+                        }
+                        isMoving = false;
+
+                        if (content[state].title.includes("Парадоксы")) resetAchilles();
+
+                    }, 2000);
+                }, 100);
             }, 1000);
-        } else {
-            btn.classList.add('wrong');
-            // Показать правильный
-            buttons.forEach(b => {
-                if(b.innerText === database.find(i => i.id === correctId).term) b.classList.add('correct');
-            });
-            feedback.innerText = "Ошибка! Повторим это позже.";
-            feedback.style.background = "#f8d7da";
-            feedback.style.color = "#721c24";
-            feedback.style.display = "block";
-
-            requeueItem();
-            setTimeout(() => { state.inputLocked = false; render(); }, 2000);
         }
-    }
 
-    // --- 3. ПИСЬМО (ОПИСАНИЕ -> ФАМИЛИЯ) ---
-    function renderWrite() {
-        if (state.learnQueue.length === 0) return showWin();
+        // --- КВИЗЫ ---
+        window.checkAnswer = function(btn, isCorrect) {
+            const allBtns = btn.parentElement.querySelectorAll('.quiz-btn');
+            allBtns.forEach(b => b.disabled = true);
 
-        const currentItem = state.learnQueue[0];
-        const card = document.createElement('div');
-        card.className = 'quiz-card';
-        card.innerHTML = `
-            <div class="question">Кто это?<br><br><small>${currentItem.def}</small></div>
-            <input type="text" class="write-input" id="write-input" placeholder="Фамилия..." autocomplete="off">
-            <button class="btn" onclick="checkText('${currentItem.term}')">Проверить</button>
-            <div class="feedback" id="write-feedback"></div>
-        `;
-        app.appendChild(card);
-        setupInputEnter('write-input', () => checkText(currentItem.term));
-    }
+            if (isCorrect) {
+                btn.classList.add('correct');
+                btn.innerText += " ✅ ВЕРНО!";
+            } else {
+                btn.classList.add('wrong');
+                btn.innerText += " ❌ ОШИБКА";
+                allBtns.forEach(b => { if(b.dataset.correct === "true") b.classList.add('correct'); });
+            }
 
-    // --- 4. ПОРТРЕТЫ (ФОТО -> ФАМИЛИЯ) ---
-    function renderPortraits() {
-        if (state.learnQueue.length === 0) return showWin();
+            setTimeout(() => { quizActive = false; advance(); }, 1500);
+        };
 
-        const currentItem = state.learnQueue[0];
-        const card = document.createElement('div');
-        card.className = 'quiz-card';
-        
-        card.innerHTML = `
-            <div class="question">Кто изображен на портрете?</div>
-            
-            <img src="images/${currentItem.img}" class="portrait-img" alt="Скрыто">
-            
-            <input type="text" class="write-input" id="portrait-input" placeholder="Введите фамилию..." autocomplete="off">
-            <button class="btn" onclick="checkPortrait('${currentItem.term}')">Проверить</button>
-            <div class="feedback" id="port-feedback"></div>
-        `;
-        
-        app.appendChild(card);
-        setupInputEnter('portrait-input', () => checkPortrait(currentItem.term));
-    }
+        // --- ИНТЕРАКТИВ ---
+        let potCount = 0;
+        window.addPotential = function() {
+            potCount++; document.getElementById('pot-count').innerText = potCount;
+        }
 
-    // Логика проверки текста (общая для Письма и Портретов)
-    function checkTextCommon(userVal, correctVal, feedbackId) {
-        const feedback = document.getElementById(feedbackId);
-        if(userVal.toLowerCase().trim() === correctVal.toLowerCase().trim()) {
-            feedback.innerText = "Верно!";
-            feedback.style.background = "#d4edda";
-            feedback.style.color = "#155724";
-            feedback.style.display = "block";
-            
+        const newGuests = ['👽', '🤖', '👻', '🦄', '🦖', '🎃'];
+        let guestIndex = 0;
+        window.addGuest = function() {
+            const track = document.getElementById('hotel-track');
+            track.style.transform = 'translateX(95px)';
             setTimeout(() => {
-                state.learnQueue.shift();
-                render();
-            }, 1000);
-        } else {
-            feedback.innerHTML = `Неверно. Это: <strong>${correctVal}</strong>`;
-            feedback.style.background = "#f8d7da";
-            feedback.style.color = "#721c24";
-            feedback.style.display = "block";
+                track.style.transition = 'none'; track.style.transform = 'translateX(0)';
+                const newEmoji = newGuests[guestIndex % newGuests.length];
+                guestIndex++;
+                track.insertAdjacentHTML('afterbegin', `<div class="room"><span class="room-num">1</span><span class="guest">${newEmoji}</span></div>`);
+                if (track.children.length > 5) track.removeChild(track.children[4]);
+                Array.from(track.children).forEach((room, idx) => room.querySelector('.room-num').innerText = idx + 1);
+                setTimeout(() => track.style.transition = 'transform 0.5s ease', 50);
+            }, 500);
+        };
+
+        // Ахиллес и черепаха
+        let achPos = 0, turPos = 50;
+        function resetAchilles() { achPos = 0; turPos = 50; }
+        window.stepAchilles = function() {
+            achPos = achPos + (turPos - achPos) / 2;
+            turPos += 1; 
+            document.getElementById('ach').style.left = achPos + '%';
+            document.getElementById('tur').style.left = turPos + '%';
+        };
+
+        // --- ФИНАЛ: ПОЛЕТ -> ПОЯВЛЕНИЕ ДЫРЫ СВЕРХУ -> ВЛЕТАНИЕ -> ВЫЛЕТ ---
+        function finalAnimation() {
+            prompt.style.display = 'none';
+            cosmicObject.style.display = 'none';
             
-            requeueItem();
-            setTimeout(() => { render(); }, 2500);
+            // 1. КОРАБЛЬ ЛЕТИТ 3 СЕКУНДЫ В ПУСТОМ КОСМОСЕ
+            speedMultiplier = 15; 
+
+            setTimeout(() => {
+                // 2. ДЫРА ВЫЛЕТАЕТ СВЕРХУ (КАК ПЛАНЕТЫ)
+                const bh = document.getElementById('black-hole');
+                bh.style.display = 'block'; 
+                bh.style.transition = 'top 3s cubic-bezier(0.25, 1, 0.5, 1), transform 3s ease-in';
+                
+                setTimeout(() => bh.classList.add('active'), 50); // Летит в центр
+
+                // 3. КОРАБЛЬ ВЛЕТАЕТ В ДЫРУ СНИЗУ ВВЕРХ
+                setTimeout(() => {
+                    cosmicStopped = true; // Космос останавливается, корабль засасывает
+                    ship.style.transition = 'all 3s cubic-bezier(0.5, 0, 0.5, 1)';
+                    ship.style.bottom = '50%'; // Летит вверх в центр
+                    ship.style.transform = 'translate(-50%, 50%) rotate(1080deg) scale(0)';
+                    ship.style.filter = 'brightness(0)';
+
+                    // 4. ТИТРЫ
+                    setTimeout(() => {
+                        document.getElementById('credits').style.opacity = '1';
+
+                        // 5. ВЫЛЕТ ОБРАТНО
+                        setTimeout(() => {
+                            document.getElementById('credits').style.opacity = '0';
+                            ship.style.transition = 'all 2s ease-out';
+                            ship.style.bottom = '15%';
+                            ship.style.transform = 'translate(-50%, 0) rotate(0deg) scale(1)';
+                            ship.style.filter = 'drop-shadow(0 0 15px rgba(102, 252, 241, 0.4))';
+
+                            setTimeout(() => {
+                                bh.classList.remove('active');
+                                setTimeout(() => { bh.style.display = 'none'; bh.style.top = '-600px'; }, 3000); // Сброс позиции
+                                cosmicStopped = false;
+                                speedMultiplier = 1; 
+                                state = -1;
+                                isMoving = false;
+                                prompt.innerText = "НАЖМИТЕ ПРОБЕЛ, ЧТОБЫ НАЧАТЬ";
+                                prompt.style.display = 'block';
+                                potCount = 0; guestIndex = 0;
+                            }, 1000);
+                        }, 6000);
+                    }, 3000);
+                }, 2000); // Даем дыре 2 секунды, чтобы спуститься
+
+            }, 3000); // Пауза полета перед дырой
         }
-    }
-
-    function checkText(correct) {
-        checkTextCommon(document.getElementById('write-input').value, correct, 'write-feedback');
-    }
-
-    function checkPortrait(correct) {
-        checkTextCommon(document.getElementById('portrait-input').value, correct, 'port-feedback');
-    }
-
-    // --- УТИЛИТЫ ---
-    function showWin() {
-        app.innerHTML = `<div class="quiz-card"><h2>Все выучено! 🎉</h2><p>Ты молодец.</p><button class="btn" onclick="init()">Заново</button></div>`;
-    }
-
-    function requeueItem() {
-        // Убираем первый элемент и вставляем его через 5 позиций
-        const item = state.learnQueue.shift();
-        const newIndex = Math.min(state.learnQueue.length, 5);
-        state.learnQueue.splice(newIndex, 0, item);
-    }
-
-    function setupInputEnter(id, callback) {
-        const input = document.getElementById(id);
-        input.focus();
-        input.addEventListener("keypress", (e) => {
-            if (e.key === "Enter") callback();
-        });
-    }
-
-    // Запуск
-    init();
-
-</script>
+    </script>
 </body>
 </html>
