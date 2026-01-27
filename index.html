@@ -26,35 +26,37 @@
 
         /* --- ПОДСКАЗКИ В ТЕКСТЕ --- */
         .hover-name, .hover-term {
-            color: #ffb74d; border-bottom: 1px dashed #ffb74d; cursor: help; font-weight: bold; position: relative;
+            color: #ffb74d; border-bottom: 2px dashed #ffb74d; cursor: help; font-weight: bold; position: relative;
             transition: color 0.3s;
         }
         .hover-term { color: #66fcf1; border-bottom-color: #66fcf1; }
         .hover-name:hover { color: #fff; border-bottom-color: #fff; }
 
-        /* --- ГЛОБАЛЬНЫЙ ТУЛТИП (ИСПРАВЛЕННЫЙ) --- */
+        /* --- ГЛОБАЛЬНЫЙ ТУЛТИП (УВЕЛИЧЕННЫЙ) --- */
         #global-tooltip {
             position: fixed; 
-            background: rgba(15, 20, 30, 0.98); /* Более плотный фон */
-            border: 2px solid #45a29e; border-radius: 12px;
-            padding: 15px; width: 240px;
-            color: white; font-size: 1rem; text-align: center;
+            background: rgba(15, 20, 30, 0.98);
+            border: 3px solid #45a29e; border-radius: 15px;
+            padding: 20px; width: 320px; /* Сделал шире */
+            color: white; font-size: 1.2rem; /* Увеличил шрифт */
+            text-align: center;
             opacity: 0; visibility: hidden; pointer-events: none; z-index: 9999;
-            box-shadow: 0 0 30px rgba(0,0,0,1);
+            box-shadow: 0 0 40px rgba(0,0,0,1);
             transition: opacity 0.2s, transform 0.2s;
             transform: translateY(10px);
+            line-height: 1.5;
         }
         #global-tooltip.active { opacity: 1; visibility: visible; transform: translateY(0); }
         
         #tooltip-img { 
             width: 100%; height: auto; 
-            border-radius: 6px; margin-bottom: 10px; 
-            display: none; /* Скрыто по умолчанию, пока не загрузится */
+            border-radius: 8px; margin-bottom: 15px; 
+            display: none; 
             border: 1px solid #444;
         }
         .tooltip-years { 
             color: #ffb74d; font-weight: bold; display: block; 
-            margin-top: 5px; font-size: 1.1rem; border-top: 1px solid #333; padding-top: 5px;
+            margin-top: 10px; font-size: 1.3rem; border-top: 1px solid #333; padding-top: 10px;
         }
 
         /* --- ОБЪЕКТЫ --- */
@@ -112,25 +114,27 @@
 
         .interactive-btn {
             background: #45a29e; color: #0b0c10; border: none; padding: 12px 20px;
-            font-size: 1.1rem; font-weight: bold; border-radius: 10px; cursor: pointer;
+            font-size: 1.2rem; font-weight: bold; border-radius: 10px; cursor: pointer;
             transition: 0.2s; margin-top: 10px; display: block; margin-left: auto; margin-right: auto;
         }
         .interactive-btn:active { transform: scale(0.95); }
 
-        /* ОТЕЛЬ */
-        .hotel-container { overflow: hidden; width: 100%; position: relative; margin: 15px 0; }
+        /* ОТЕЛЬ (УВЕЛИЧЕННЫЙ) */
+        .hotel-container { overflow: hidden; width: 100%; position: relative; margin: 20px 0; }
         .hotel { display: flex; gap: 10px; transition: transform 0.5s ease; padding: 5px; }
         .room {
-            min-width: 60px; height: 60px; background: #1f2833; border: 2px solid #66fcf1;
-            border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            font-size: 1.5rem; flex-shrink: 0;
+            min-width: 80px; height: 90px; /* Увеличил размер */
+            background: #1f2833; border: 3px solid #66fcf1;
+            border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            flex-shrink: 0;
         }
-        .room-num { font-size: 0.7rem; color: #45a29e; }
+        .room-num { font-size: 1rem; color: #45a29e; font-weight: bold; margin-bottom: 5px; }
+        .guest { font-size: 3rem; transition: 0.5s; } /* Увеличил эмодзи */
 
         /* СИМУЛЯТОРЫ */
         .infinity-sim { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
-        .sim-box { flex: 1; min-width: 140px; background: #1f2833; padding: 10px; border-radius: 10px; text-align: center; border: 2px solid #45a29e; }
-        input[type=range] { width: 100%; }
+        .sim-box { flex: 1; min-width: 140px; background: #1f2833; padding: 15px; border-radius: 10px; text-align: center; border: 2px solid #45a29e; }
+        input[type=range] { width: 100%; height: 20px; cursor: pointer; }
 
         /* ЧЕРНАЯ ДЫРА */
         #black-hole {
@@ -165,7 +169,6 @@
             p, li { font-size: 1rem; }
             .infinity-sim { flex-direction: column; }
             #black-hole { box-shadow: inset 0 0 40px #000; width: 300px; height: 300px; }
-            /* Тултип на весь экран снизу для мобилок */
             #global-tooltip {
                 width: 90%; left: 5% !important; bottom: 10px !important; top: auto !important;
                 transform: none !important;
@@ -211,7 +214,7 @@
     <script>
         const isMobile = window.innerWidth < 768;
 
-        // --- ДАННЫЕ (Локальные имена файлов) ---
+        // --- ДАННЫЕ (Восстановлен полный текст про школу) ---
         const content = [
             {
                 type: 'info', planet: '🌍', color: '#45a29e',
@@ -279,7 +282,7 @@
                 type: 'info', planet: '🚀', color: '#45a29e',
                 title: '4️⃣ Теории и Парадоксы',
                 text: `<h3>🏨 Парадокс отеля Гильберта</h3>
-                       <p>Отель полон, но гость влезает, если все сдвинутся (1→2, 2→3...).</p>
+                       <p>В отеле бесконечно много комнат, и все они заняты. Но если придёт новый гость: каждый переезжает в следующую комнату, первая освобождается.</p>
                        <div class="hotel-container">
                            <div class="hotel" id="hotel-track">
                                <div class="room"><span class="room-num">1</span><span class="guest">🐱</span></div>
@@ -289,9 +292,10 @@
                            </div>
                        </div>
                        <button class="interactive-btn" onclick="addGuest()">Заселить!</button>
+                       <p>👉 Даже полностью заполненный бесконечный отель может принять новых гостей. Часть может быть равна целому.</p>
                        
                        <h3>🐢 Ахиллес и черепаха</h3>
-                       <p>Бесконечное деление пути. Ахиллес никогда не догонит черепаху математически, хотя физически догонит.</p>
+                       <p>Ахиллес быстрее, но пока он добегает до места, где была черепаха, она чуть отползает. Расстояние всегда делится, но никогда не становится нулем.</p>
                        <div style="background:#1f2833; height:40px; border-radius:20px; position:relative; margin:10px 0; border:1px solid #45a29e">
                            <span id="ach" style="position:absolute; left:0; top:5px; transition:0.5s">🏃</span>
                            <span id="tur" style="position:absolute; left:50%; top:5px; transition:0.5s">🐢</span>
@@ -325,15 +329,21 @@
             },
             {
                 type: 'info', planet: '📚', color: '#45a29e',
-                title: '6️⃣ Заключение',
-                text: `<p><b>В школе:</b> числа, прямые, дроби, 
-                       <span class="hover-term" data-desc="Число, к которому значение функции стремится.<br>Пример: 2.9, 2.99 -> 3">пределы</span>.</p>
-                       <h3>🏁 Итог</h3>
-                       <p>Бесконечность — это не просто "очень много". Это идея, которая меняет наше мышление и помогает описывать сложные процессы Вселенной.</p>`
+                title: '6️⃣ Школа и Заключение',
+                text: `<p><b>Где бесконечность используется в школе:</b></p>
+                       <ul>
+                           <li>счёт натуральных чисел (1, 2, 3...);</li>
+                           <li>прямая линия без конца;</li>
+                           <li>дроби и деление;</li>
+                           <li>графики функций;</li>
+                           <li><span class="hover-term" data-desc="Число, к которому значение функции стремится.<br>Пример: 2.9, 2.99 -> 3">пределы</span> (в старших классах).</li>
+                       </ul>
+                       <h3 style="color: #66fcf1; font-size: 1.5rem;">🏁 Заключение</h3>
+                       <p>Бесконечность меняет наше мышление, помогает описывать сложные процессы и используется в науке, технике и космосе.</p>`
             }
         ];
 
-        // --- КАНВАС ---
+        // --- КАНВАС (ОПТИМИЗИРОВАННЫЙ) ---
         const canvas = document.getElementById('starfield');
         const ctx = canvas.getContext('2d');
         let width = canvas.width = window.innerWidth;
@@ -427,7 +437,6 @@
             document.querySelectorAll('.hover-name, .hover-term').forEach(el => {
                 el.addEventListener('mouseenter', showTooltip);
                 el.addEventListener('mouseleave', hideTooltip);
-                // Для мобильных - тап работает как клик
                 el.addEventListener('touchstart', (e) => {
                     e.stopPropagation();
                     if (tooltip.dataset.active === el.innerText) hideTooltip();
@@ -447,30 +456,25 @@
             const textEl = document.getElementById('tooltip-text');
 
             if (imgFile) {
-                // Ищем в папке images
                 imgEl.src = 'images/' + imgFile;
                 imgEl.onload = () => { imgEl.style.display = 'block'; }
-                imgEl.onerror = () => { imgEl.style.display = 'none'; } // Если нет фото, не показываем битое
+                imgEl.onerror = () => { imgEl.style.display = 'none'; } 
                 textEl.innerHTML = `<span class="tooltip-years">${years}</span>`;
             } else {
                 imgEl.style.display = 'none';
                 textEl.innerHTML = desc;
             }
 
-            // Позиционирование
-            const tooltipWidth = 240;
+            const tooltipWidth = 320; 
             let leftPos = rect.left + rect.width / 2 - tooltipWidth / 2;
             
-            // Защита от выхода за экран
             if (leftPos < 10) leftPos = 10;
             if (leftPos + tooltipWidth > window.innerWidth) leftPos = window.innerWidth - tooltipWidth - 10;
 
             let topPos = rect.top - 20; 
-            // Если сверху мало места, показываем снизу
             if (topPos < 200) topPos = rect.bottom + 10;
-            else topPos -= (imgFile ? 200 : 80);
+            else topPos -= (imgFile ? 350 : 100);
 
-            // На мобилках всегда снизу
             if (isMobile) {
                 tooltip.style.top = 'auto';
                 tooltip.style.bottom = '10px';
@@ -512,7 +516,7 @@
         let guestIndex = 0;
         window.addGuest = function() {
             const track = document.getElementById('hotel-track');
-            track.style.transform = 'translateX(70px)';
+            track.style.transform = 'translateX(90px)';
             setTimeout(() => {
                 track.style.transition = 'none'; track.style.transform = 'translateX(0)';
                 track.insertAdjacentHTML('afterbegin', `<div class="room"><span class="room-num">1</span><span class="guest">${newGuests[guestIndex++ % 4]}</span></div>`);
