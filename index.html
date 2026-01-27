@@ -12,122 +12,130 @@
             background: #0b0c10; color: #c5c6c7;
             font-family: 'Exo 2', sans-serif; user-select: none;
             cursor: default;
-            -webkit-tap-highlight-color: transparent; /* Убирает синий квадрат при клике на телефоне */
+            -webkit-tap-highlight-color: transparent;
         }
 
         canvas { position: absolute; top: 0; left: 0; z-index: 1; }
 
         header { position: absolute; top: 15px; width: 100%; text-align: center; z-index: 100; pointer-events: none; }
-        h1 { font-size: 2.5rem; color: #66fcf1; text-shadow: 0 0 10px rgba(102, 252, 241, 0.4); margin: 0; }
-
-        /* Подсказка управления */
-        #space-prompt {
-            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
-            font-size: 1.1rem; font-weight: 800; color: #45a29e;
-            background: rgba(11, 12, 16, 0.9); padding: 12px 30px; border-radius: 30px;
-            border: 2px solid #45a29e; z-index: 100; transition: 0.3s;
-            display: none; pointer-events: none;
+        h1 { 
+            font-size: 2.5rem; color: #66fcf1; 
+            text-shadow: 0 0 15px rgba(102, 252, 241, 0.6); margin: 0; 
+            padding: 0 10px;
         }
 
-        /* Космические объекты */
+        /* --- ПОДСКАЗКИ В ТЕКСТЕ --- */
+        .hover-name, .hover-term {
+            color: #ffb74d; border-bottom: 1px dashed #ffb74d; cursor: help; font-weight: bold; position: relative;
+        }
+        .hover-term { color: #66fcf1; border-bottom-color: #66fcf1; }
+
+        /* --- ГЛОБАЛЬНЫЙ ТУЛТИП (УМНОЕ ПОЗИЦИОНИРОВАНИЕ) --- */
+        #global-tooltip {
+            position: fixed; /* Фиксируем относительно окна браузера */
+            background: rgba(11, 12, 16, 0.98);
+            border: 2px solid #45a29e; border-radius: 10px;
+            padding: 10px; width: 200px;
+            color: white; font-size: 0.95rem; text-align: center;
+            opacity: 0; visibility: hidden; pointer-events: none; z-index: 9999;
+            box-shadow: 0 0 25px rgba(0,0,0,0.9);
+            transition: opacity 0.2s;
+            line-height: 1.4;
+        }
+        #global-tooltip img { 
+            width: 100%; height: auto; 
+            border-radius: 5px; margin-bottom: 8px; 
+            display: block; border: 1px solid #333;
+        }
+        #global-tooltip.active { opacity: 1; visibility: visible; }
+        .tooltip-years { color: #ffb74d; font-weight: bold; display: block; margin-top: 5px; font-size: 0.9rem; }
+
+        /* --- ОБЪЕКТЫ --- */
         #cosmic-object {
             position: absolute; top: -500px; left: 50%; transform: translateX(-50%);
-            width: 250px; height: 250px; z-index: 5;
+            width: 300px; height: 300px; z-index: 5;
             transition: top 2.5s cubic-bezier(0.25, 1, 0.5, 1);
-            /* Убрали тяжелую тень для оптимизации */
-            opacity: 0.9;
+            filter: drop-shadow(0 0 30px rgba(102, 252, 241, 0.2));
         }
 
         #ship {
             position: absolute; bottom: 15%; left: 50%; transform: translate(-50%, 0);
             width: 90px; height: 130px; z-index: 50;
-            transition: all 2s cubic-bezier(0.25, 1, 0.5, 1);
-            /* Легкое свечение вместо drop-shadow для производительности */
-            filter: drop-shadow(0 0 5px #66fcf1); 
+            transition: all 3s cubic-bezier(0.25, 1, 0.5, 1);
+            filter: drop-shadow(0 0 15px rgba(102, 252, 241, 0.4));
         }
 
-        /* Панель информации */
+        /* --- ПАНЕЛЬ --- */
         #info-panel {
             position: absolute; top: 50%; left: 50%;
             transform: translate(-50%, -50%) scale(0.9);
-            width: 850px; max-width: 90%; max-height: 85vh; overflow-y: auto;
-            background: rgba(11, 12, 16, 0.98); /* Почти непрозрачный для читаемости */
-            border-left: 4px solid #66fcf1; border-right: 4px solid #66fcf1;
+            width: 850px; max-width: 90%; max-height: 80vh; overflow-y: auto;
+            background: rgba(11, 12, 16, 0.95);
+            border-left: 5px solid #66fcf1; border-right: 5px solid #66fcf1;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
             border-radius: 15px; padding: 30px;
             z-index: 60; opacity: 0; pointer-events: none;
-            transition: opacity 0.5s ease, transform 0.5s ease;
+            transition: all 0.5s ease; backdrop-filter: blur(10px);
         }
         #info-panel.visible { opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: all; }
-        
+
         h2 { color: #66fcf1; font-size: 1.8rem; margin-top: 0; text-align: center; }
-        h3 { color: #45a29e; border-bottom: 1px solid #1f2833; padding-bottom: 5px; margin-top: 20px; font-size: 1.4rem;}
-        p, li { font-size: 1.2rem; line-height: 1.5; color: #e0e0e0; }
+        h3 { color: #45a29e; border-bottom: 1px solid #1f2833; padding-bottom: 5px; margin-top: 20px; font-size: 1.3rem; }
+        p, li { font-size: 1.15rem; line-height: 1.5; color: #e0e0e0; }
 
-        /* --- ВСПЛЫВАЮЩИЕ ПОРТРЕТЫ И ПОДСКАЗКИ --- */
-        .hover-name, .hover-term {
-            color: #ffb74d; border-bottom: 1px dashed #ffb74d; cursor: help; position: relative; font-weight: bold;
-            display: inline-block; /* Важно для ховера */
+        /* --- ЭЛЕМЕНТЫ УПРАВЛЕНИЯ --- */
+        #space-prompt {
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            font-size: 1rem; font-weight: 800; color: #45a29e;
+            background: rgba(11, 12, 16, 0.9); padding: 12px 25px; border-radius: 30px;
+            border: 2px solid #45a29e; z-index: 100; transition: 0.3s;
+            white-space: nowrap; pointer-events: none;
+            display: none;
         }
-        .hover-term { color: #66fcf1; border-bottom: 1px dashed #66fcf1; }
-        
-        /* Контейнер тултипа */
-        .tooltip-box {
-            position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%);
-            width: 200px; background: #0b0c10; border: 2px solid #45a29e;
-            border-radius: 10px; padding: 10px; opacity: 0; visibility: hidden;
-            transition: 0.2s; z-index: 300; pointer-events: none; 
-            text-align: center; box-shadow: 0 0 10px #000;
-        }
-        /* Показываем при наведении ИЛИ при клике (класс active добавляется скриптом) */
-        .hover-name:hover .tooltip-box, .hover-term:hover .tooltip-box,
-        .hover-name.active .tooltip-box, .hover-term.active .tooltip-box {
-            opacity: 1; visibility: visible; bottom: 130%;
-        }
-        .tooltip-img { width: 100%; height: auto; border-radius: 5px; margin-bottom: 5px; display: block; }
-        .tooltip-text { font-size: 0.9rem; color: #fff; }
 
-        /* КВИЗЫ */
         .quiz-btn {
             display: block; width: 100%; background: #1f2833; color: #66fcf1;
             border: 2px solid #45a29e; border-radius: 8px;
-            padding: 12px; font-size: 1.1rem; margin-bottom: 10px;
-            cursor: pointer; transition: 0.2s; font-family: 'Exo 2', sans-serif; font-weight: bold;
+            padding: 15px; font-size: 1.1rem; margin-bottom: 10px;
+            cursor: pointer; transition: 0.2s; font-weight: bold;
         }
         .quiz-btn:active { transform: scale(0.98); }
         .quiz-btn.correct { background: #4caf50 !important; color: white !important; border-color: #4caf50; }
         .quiz-btn.wrong { background: #f44336 !important; color: white !important; border-color: #f44336; }
 
-        /* ИНТЕРАКТИВНЫЕ ЭЛЕМЕНТЫ */
         .interactive-btn {
-            background: #45a29e; color: #0b0c10; border: none; padding: 10px 20px;
+            background: #45a29e; color: #0b0c10; border: none; padding: 12px 20px;
             font-size: 1.1rem; font-weight: bold; border-radius: 10px; cursor: pointer;
-            transition: 0.2s; margin-top: 10px;
+            transition: 0.2s; margin-top: 10px; display: block; margin-left: auto; margin-right: auto;
         }
-        .interactive-btn:active { transform: translateY(2px); }
+        .interactive-btn:active { transform: scale(0.95); }
 
+        /* ОТЕЛЬ */
         .hotel-container { overflow: hidden; width: 100%; position: relative; margin: 15px 0; }
         .hotel { display: flex; gap: 10px; transition: transform 0.5s ease; padding: 5px; }
         .room {
-            min-width: 70px; height: 70px; background: #1f2833; border: 2px solid #66fcf1;
-            border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            font-size: 1.8rem; position: relative;
+            min-width: 60px; height: 60px; background: #1f2833; border: 2px solid #66fcf1;
+            border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-size: 1.5rem; flex-shrink: 0;
         }
-        .room-num { font-size: 0.7rem; color: #45a29e; position: absolute; top: 2px; }
-        
-        .infinity-sim { display: flex; gap: 10px; margin-top: 15px; }
-        .sim-box { flex: 1; background: #1f2833; padding: 10px; border-radius: 10px; text-align: center; border: 1px solid #45a29e; }
-        .sim-display { font-size: 1.5rem; color: #66fcf1; font-weight: bold; margin: 5px 0; height: 35px;}
-        input[type=range] { width: 90%; }
+        .room-num { font-size: 0.7rem; color: #45a29e; }
+
+        /* СИМУЛЯТОРЫ */
+        .infinity-sim { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
+        .sim-box { flex: 1; min-width: 140px; background: #1f2833; padding: 10px; border-radius: 10px; text-align: center; border: 2px solid #45a29e; }
+        input[type=range] { width: 100%; }
 
         /* ЧЕРНАЯ ДЫРА */
         #black-hole {
             position: absolute; top: -600px; left: 50%; transform: translateX(-50%) scale(0.1);
-            width: 400px; height: 400px; border-radius: 50%; /* Чуть меньше для мобилок */
-            background: radial-gradient(circle, #000000 30%, #1a052e 60%, transparent 100%);
-            /* Убрали тяжелый box-shadow */
+            width: 600px; height: 600px; border-radius: 50%;
+            background: radial-gradient(circle, #000000 30%, #1a052e 50%, transparent 100%);
+            box-shadow: inset 0 0 80px #000, 0 0 120px rgba(102, 252, 241, 0.5);
             z-index: 45; transition: top 3s cubic-bezier(0.25, 1, 0.5, 1), transform 3s ease-in;
+            animation: spin 10s linear infinite;
             display: none;
         }
+        @keyframes spin { 100% { transform: translate(-50%, -50%) rotate(360deg); } }
         #black-hole.active { top: 50%; transform: translate(-50%, -50%) scale(1.5); }
 
         #credits {
@@ -136,8 +144,21 @@
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             opacity: 0; pointer-events: none; transition: opacity 2s;
         }
-        #credits h1 { font-size: 3rem; color: #66fcf1; text-align: center;}
+        #credits h1 { font-size: 3rem; color: #66fcf1; text-align: center; }
         #credits p { font-size: 1.5rem; color: #45a29e; }
+
+        /* --- МОБИЛЬНАЯ ОПТИМИЗАЦИЯ --- */
+        @media (max-width: 768px) {
+            #ship { filter: none !important; width: 70px; height: 100px; }
+            #cosmic-object { filter: none !important; width: 200px; height: 200px; }
+            .stars { display: none; }
+            h1 { font-size: 1.5rem; }
+            #info-panel { width: 95%; padding: 20px; max-height: 70vh; }
+            h2 { font-size: 1.4rem; }
+            p, li { font-size: 1rem; }
+            .infinity-sim { flex-direction: column; }
+            #black-hole { box-shadow: inset 0 0 40px #000; width: 300px; height: 300px; }
+        }
     </style>
 </head>
 <body>
@@ -150,7 +171,7 @@
 
     <div id="ship">
         <svg viewBox="0 0 100 150">
-            <path d="M 40 120 Q 50 150 60 120" fill="#45a29e" filter="blur(2px)"/>
+            <path d="M 40 120 Q 50 150 60 120" fill="#45a29e" filter="blur(3px)"/>
             <path d="M 50 10 L 80 100 L 50 120 L 20 100 Z" fill="#e0e0e0"/>
             <path d="M 50 30 Q 65 60 50 80 Q 35 60 50 30" fill="#66fcf1"/>
             <path d="M 20 100 L 5 120 L 30 110 Z" fill="#45a29e"/>
@@ -163,7 +184,12 @@
         <div id="info-text"></div>
     </div>
 
-    <div id="space-prompt" class="pulse">КЛИКНИТЕ, ЧТОБЫ НАЧАТЬ</div>
+    <div id="space-prompt">НАЖМИТЕ ИЛИ КОСНИТЕСЬ ЭКРАНА</div>
+    
+    <div id="global-tooltip">
+        <img src="" id="tooltip-img" style="display:none">
+        <div id="tooltip-text"></div>
+    </div>
 
     <div id="credits">
         <h1>БЕСКОНЕЧНОСТЬ</h1>
@@ -171,74 +197,78 @@
     </div>
 
     <script>
-        // --- ДАННЫЕ (С ПОРТРЕТАМИ) ---
+        // Детектор мобильного устройства
+        const isMobile = window.innerWidth < 768;
+
+        // --- КОНТЕНТ (Имена файлов без пути, скрипт сам добавит папку images/) ---
         const content = [
             {
                 type: 'info', planet: '🌍', color: '#45a29e',
                 title: '1️⃣ Понятие бесконечности',
-                text: `<p>Бесконечность — это математическое понятие, которое означает, что у чего-то нет конца. Это не число, потому что любое число можно увеличить на 1.</p>
-                       <ul><li>ряд чисел: 1, 2, 3... — его нельзя закончить;</li><li>прямая линия — у неё нет начала и конца.</li></ul>
-                       <p>Для обозначения используют знак ∞.</p>`
+                text: `<p>Бесконечность — это математическое понятие, означающее отсутствие конца. Это не число, а идея, так как у числа есть предел, а у бесконечности — нет.</p>
+                       <p><b>Примеры:</b></p>
+                       <ul><li>ряд чисел: 1, 2, 3... (нельзя закончить);</li><li>прямая линия (нет начала и конца);</li><li>деление: число можно делить снова и снова.</li></ul>
+                       <p>Знак: ∞ (лежащая восьмёрка).</p>`
             },
             {
                 type: 'quiz', planet: '❓', color: '#66fcf1',
-                title: '❓ Вопрос 1',
-                text: `<p>Является ли бесконечность обычным числом?</p>
-                       <button class="quiz-btn" onclick="checkAnswer(this, false)">Да, это самое большое число</button>
-                       <button class="quiz-btn" data-correct="true" onclick="checkAnswer(this, true)">Нет, это идея/концепция</button>`
+                title: '❓ Вопрос 1: Суть',
+                text: `<p>Бесконечность — это обычное число?</p>
+                       <button class="quiz-btn" onclick="checkAnswer(this, false)">Да, самое большое</button>
+                       <button class="quiz-btn" data-correct="true" onclick="checkAnswer(this, true)">Нет, это понятие</button>`
             },
             {
                 type: 'info', planet: '🪐', color: '#ffb74d',
                 title: '2️⃣ История',
                 text: `<h3>🏛 Древняя Греция</h3><p>
-                       <span class="hover-name" onclick="toggleTooltip(this)">Аристотель<span class="tooltip-box"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Aristotle_Altemps_Inv8575.jpg/220px-Aristotle_Altemps_Inv8575.jpg" class="tooltip-img"><div class="tooltip-text">384–322 до н. э.</div></span></span> 
-                       считал, что бесконечность существует только как процесс. 
-                       <span class="hover-name" onclick="toggleTooltip(this)">Зенон<span class="tooltip-box"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Zeno_of_Elea_Tibaldi_or_Carducho.jpg/220px-Zeno_of_Elea_Tibaldi_or_Carducho.jpg" class="tooltip-img"><div class="tooltip-text">ок. 490–430 до н. э.</div></span></span> 
-                       придумал парадоксы.</p>
+                       <span class="hover-name" data-img="aristotle.jpg" data-years="384–322 до н. э.">Аристотель</span> 
+                       считал, что бесконечность существует только как процесс (потенциальная). 
+                       <span class="hover-name" data-img="zeno.jpg" data-years="ок. 490–430 до н. э.">Зенон Элейский</span> 
+                       придумал знаменитые парадоксы (Ахиллес и черепаха).</p>
                        <h3>📐 XVII век</h3><p>
-                       <span class="hover-name" onclick="toggleTooltip(this)">Джон Валлис<span class="tooltip-box"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/John_Wallis_by_Sir_Godfrey_Kneller%2C_Bt.jpg/220px-John_Wallis_by_Sir_Godfrey_Kneller%2C_Bt.jpg" class="tooltip-img"><div class="tooltip-text">1616–1703</div></span></span> 
+                       <span class="hover-name" data-img="wallis.jpg" data-years="1616–1703">Джон Валлис</span> 
                        впервые ввёл знак ∞.</p>
                        <h3>📊 XIX век</h3><p>
-                       <span class="hover-name" onclick="toggleTooltip(this)">Георг Кантор<span class="tooltip-box"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Georg_Cantor2.jpg" class="tooltip-img"><div class="tooltip-text">1845–1918</div></span></span> 
-                       доказал, что бесконечности бывают разными.</p>`
+                       <span class="hover-name" data-img="cantor.jpg" data-years="1845–1918">Георг Кантор</span> 
+                       доказал, что бесконечностей бывает несколько видов и они бывают разного "размера".</p>`
             },
             {
                 type: 'quiz', planet: '❓', color: '#e0e0e0',
-                title: '❓ Вопрос 2',
-                text: `<p>Кто впервые ввел знак ∞?</p>
+                title: '❓ Вопрос 2: Знак ∞',
+                text: `<p>Кто придумал знак ∞?</p>
                        <button class="quiz-btn" data-correct="true" onclick="checkAnswer(this, true)">Джон Валлис</button>
-                       <button class="quiz-btn" onclick="checkAnswer(this, false)">Георг Кантор</button>
-                       <button class="quiz-btn" onclick="checkAnswer(this, false)">Зенон Элейский</button>`
+                       <button class="quiz-btn" onclick="checkAnswer(this, false)">Георг Кантор</button>`
             },
             {
                 type: 'info', planet: '🌌', color: '#66fcf1',
                 title: '3️⃣ Виды бесконечностей',
-                text: `<div class="infinity-sim">
+                text: `<p><b>Потенциальная</b> (Процесс) vs <b>Актуальная</b> (Объект)</p>
+                       <div class="infinity-sim">
                            <div class="sim-box">
-                               <p><b>Потенциальная</b></p>
+                               <p style="margin:5px"><b>Потенциальная</b></p>
                                <div class="sim-display" id="pot-count">0</div>
-                               <button class="interactive-btn" onclick="addPotential()">Считать</button>
+                               <button class="interactive-btn" onclick="addPotential()">Считать +1</button>
                            </div>
                            <div class="sim-box">
-                               <p><b>Актуальная</b></p>
-                               <div class="sim-display" id="act-show">?</div>
-                               <button class="interactive-btn" onclick="document.getElementById('act-show').innerText = '{1, 2... ∞}'">Всё сразу</button>
+                               <p style="margin:5px"><b>Актуальная</b></p>
+                               <div class="sim-display" id="act-show" style="font-size:1.5rem">?</div>
+                               <button class="interactive-btn" onclick="document.getElementById('act-show').innerText = '{1, 2... ∞}'">Показать</button>
                            </div>
                        </div>
                        <hr style="border-color: #45a29e;">
-                       <p><b>🔢 Счётная:</b> Можно пронумеровать (1, 2, 3...).</p>
-                       <p><b>🌊 Несчётная:</b> Нельзя пронумеровать (точки на линии).</p>
-                       <div class="sim-box" style="margin-top: 15px;">
-                           <p style="margin-top:0;"><b>Лупа бесконечности (0...1):</b></p>
-                           <input type="range" min="1" max="10" value="1" oninput="document.getElementById('zoom-res').innerText = '0.' + '0'.repeat(this.value) + '1...'">
-                           <div id="zoom-res" style="font-size: 1.5rem; color: #66fcf1; font-weight: bold; margin-top: 5px;">0.1...</div>
+                       <p><b>🔢 Счётная:</b> Можно пронумеровать (1, 2, 3...). Пример: этажи, натуральные числа.</p>
+                       <p><b>🌊 Несчётная:</b> Нельзя посчитать. Пример: все точки на линии, все числа между 0 и 1.</p>
+                       <div class="sim-box">
+                           <p><b>Лупа:</b> Отрезок 0-1 бесконечен.</p>
+                           <input type="range" min="1" max="10" value="1" oninput="updateZoom(this.value)">
+                           <div id="zoom-res" style="color:#66fcf1; font-weight:bold">0.1...</div>
                        </div>`
             },
             {
                 type: 'info', planet: '🚀', color: '#45a29e',
-                title: '4️⃣ Парадоксы',
-                text: `<h3>🏨 Отель Гильберта</h3>
-                       <p>В заполненный отель приехал гость. Все переезжают в следующую комнату (1→2, 2→3...), и №1 освобождается.</p>
+                title: '4️⃣ Теории и Парадоксы',
+                text: `<h3>🏨 Парадокс отеля Гильберта</h3>
+                       <p>Отель полон, но гость влезает, если все сдвинутся (1→2, 2→3...).</p>
                        <div class="hotel-container">
                            <div class="hotel" id="hotel-track">
                                <div class="room"><span class="room-num">1</span><span class="guest">🐱</span></div>
@@ -247,65 +277,59 @@
                                <div class="room"><span class="room-num">4</span><span class="guest">🐼</span></div>
                            </div>
                        </div>
-                       <button class="interactive-btn" style="margin: 0 auto; display: block;" onclick="addGuest()">Заселить гостя!</button>
+                       <button class="interactive-btn" onclick="addGuest()">Заселить!</button>
                        
                        <h3>🐢 Ахиллес и черепаха</h3>
-                       <p>Ахиллес никогда не догонит черепаху, потому что каждый раз пробегает лишь половину расстояния.</p>
-                       <div style="background: #1f2833; height: 40px; position: relative; border-radius: 25px; margin: 15px 0; overflow: hidden; border: 1px solid #45a29e;">
-                           <span id="ach" style="position: absolute; font-size: 25px; left: 0%; top: 5px; transition: 0.5s;">🏃</span>
-                           <span id="tur" style="position: absolute; font-size: 25px; left: 50%; top: 5px; transition: 0.5s;">🐢</span>
+                       <p>Бесконечное деление пути. Ахиллес никогда не догонит черепаху математически, хотя физически догонит.</p>
+                       <div style="background:#1f2833; height:40px; border-radius:20px; position:relative; margin:10px 0; border:1px solid #45a29e">
+                           <span id="ach" style="position:absolute; left:0; top:5px; transition:0.5s">🏃</span>
+                           <span id="tur" style="position:absolute; left:50%; top:5px; transition:0.5s">🐢</span>
                        </div>
-                       <button class="interactive-btn" style="margin: 0 auto; display: block;" onclick="stepAchilles()">Бежать!</button>`
+                       <button class="interactive-btn" onclick="stepAchilles()">Сократить путь вдвое</button>`
             },
             {
                 type: 'quiz', planet: '❓', color: '#ffb74d',
-                title: '❓ Вопрос 3',
-                text: `<p>Может ли заполненный бесконечный отель принять гостя?</p>
-                       <button class="quiz-btn" onclick="checkAnswer(this, false)">Нет, мест нет</button>
-                       <button class="quiz-btn" data-correct="true" onclick="checkAnswer(this, true)">Да, если все сдвинутся</button>`
+                title: '❓ Вопрос 3: Отель',
+                text: `<p>Может ли полный бесконечный отель принять гостя?</p>
+                       <button class="quiz-btn" onclick="checkAnswer(this, false)">Нет</button>
+                       <button class="quiz-btn" data-correct="true" onclick="checkAnswer(this, true)">Да</button>`
             },
             {
                 type: 'info', planet: '🛰️', color: '#66fcf1',
                 title: '5️⃣ Применение',
-                text: `<h3>📐 Математика & 💻 Информатика</h3><p>Анализ функций, циклы.</p>
-                       <h3>⚛ Физика (Черные дыры)</h3>
-                       <p>Там плотность становится бесконечной.</p>
-                       <div class="sim-box" style="margin-top: 15px;">
-                           <p style="margin-top:0;"><b>Симулятор сжатия звезды:</b></p>
-                           <input type="range" min="1" max="100" value="1" oninput="document.getElementById('density').innerText = this.value === '100' ? 'БЕСКОНЕЧНОСТЬ ∞' : this.value * 1000 + ' тонн/см³'">
-                           <div id="density" style="font-size: 1.5rem; color: #66fcf1; font-weight: bold; margin-top: 5px;">1000 тонн/см³</div>
+                text: `<h3>Математика и IT</h3><p>Теория множеств, пределы, бесконечные циклы, анализ функций.</p>
+                       <h3>Физика и Космос</h3><p>Бесконечная плотность в черных дырах (сингулярность), возможно бесконечная Вселенная.</p>
+                       <div class="sim-box" style="border-color:#66fcf1">
+                           <p><b>Сжатие звезды:</b></p>
+                           <input type="range" min="1" max="100" value="1" oninput="updateDensity(this.value)">
+                           <div id="density" style="color:#66fcf1; font-weight:bold">1000 т/см³</div>
                        </div>`
             },
             {
                 type: 'quiz', planet: '❓', color: '#45a29e',
-                title: '❓ Вопрос 4',
-                text: `<p>Где встречается бесконечная плотность?</p>
+                title: '❓ Вопрос 4: Где ∞ плотность?',
+                text: `<p>Где теоретически плотность бесконечна?</p>
                        <button class="quiz-btn" data-correct="true" onclick="checkAnswer(this, true)">В чёрных дырах</button>
-                       <button class="quiz-btn" onclick="checkAnswer(this, false)">В звездах</button>`
+                       <button class="quiz-btn" onclick="checkAnswer(this, false)">В Солнце</button>`
             },
             {
                 type: 'info', planet: '📚', color: '#45a29e',
                 title: '6️⃣ Заключение',
-                text: `<p>В школе мы используем бесконечность:</p>
-                       <ul>
-                           <li>числа, прямые, дроби;</li>
-                           <li><span class="hover-term" onclick="toggleTooltip(this)">пределы<span class="tooltip-box"><div class="tooltip-text">Число, к которому мы приближаемся бесконечно близко.<br>2.999... -> 3</div></span></span> (в старших классах).</li>
-                       </ul>
-                       <h3 style="color: #66fcf1; font-size: 1.5rem;">🏁 Итог</h3>
-                       <p>Бесконечность — это инструмент для описания Вселенной.</p>`
+                text: `<p><b>В школе:</b> числа, прямые, дроби, 
+                       <span class="hover-term" data-desc="Число, к которому значение функции стремится.<br>Пример: 2.9, 2.99 -> 3">пределы</span>.</p>
+                       <h3>🏁 Итог</h3>
+                       <p>Бесконечность — это не просто "очень много". Это идея, которая меняет наше мышление и помогает описывать сложные процессы Вселенной.</p>`
             }
         ];
 
-        // --- ОПТИМИЗИРОВАННЫЙ КАНВАС (МЕНЬШЕ ЗВЕЗД ДЛЯ ТЕЛЕФОНА) ---
+        // --- КАНВАС (ОПТИМИЗИРОВАННЫЙ) ---
         const canvas = document.getElementById('starfield');
         const ctx = canvas.getContext('2d');
         let width = canvas.width = window.innerWidth;
         let height = canvas.height = window.innerHeight;
 
-        // Меньше звезд для мобилок
-        const isMobile = window.innerWidth < 768;
-        const starCount = isMobile ? 80 : 300; 
-
+        // Мобильная оптимизация: в 3 раза меньше звезд
+        const starCount = isMobile ? 150 : 500;
         const stars = [];
         for (let i = 0; i < starCount; i++) stars.push({ x: Math.random() * width, y: Math.random() * height, z: Math.random() * 2 + 0.5 });
 
@@ -315,7 +339,10 @@
         function drawStars() {
             ctx.fillStyle = '#0b0c10'; ctx.fillRect(0, 0, width, height); ctx.fillStyle = '#c5c6c7';
             for (let star of stars) {
-                ctx.beginPath(); ctx.arc(star.x, star.y, star.z, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); 
+                // На мобильном звезды чуть тусклее и без сложных эффектов
+                ctx.arc(star.x, star.y, isMobile ? star.z * 0.7 : star.z, 0, Math.PI * 2); 
+                ctx.fill();
                 if (!cosmicStopped) { star.y += star.z * speedMultiplier; if (star.y > height) star.y = 0; }
             }
             requestAnimationFrame(drawStars);
@@ -327,46 +354,30 @@
         let state = -1;
         let isMoving = false;
         let quizActive = false;
-
         const panel = document.getElementById('info-panel');
         const prompt = document.getElementById('space-prompt');
         const ship = document.getElementById('ship');
         const cosmicObject = document.getElementById('cosmic-object');
+        const tooltip = document.getElementById('global-tooltip');
 
         function setPlanet(emoji, color) {
-            cosmicObject.innerHTML = `<svg viewBox="0 0 100 100" style="filter: drop-shadow(0 0 20px ${color});"><circle cx="50" cy="50" r="48" fill="${color}" fill-opacity="0.2" stroke="${color}" stroke-width="2"/><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-size="60">${emoji}</text></svg>`;
+            // На мобильном убираем drop-shadow для производительности
+            cosmicObject.innerHTML = `<svg viewBox="0 0 100 100" style="${isMobile ? '' : `filter: drop-shadow(0 0 40px ${color});`}"><circle cx="50" cy="50" r="48" fill="${color}" fill-opacity="0.2" stroke="${color}" stroke-width="2"/><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-size="60">${emoji}</text></svg>`;
         }
 
-        // ОБРАБОТЧИК КЛИКОВ И ТАПОВ
+        // КЛИК ПО ЭКРАНУ (ПРОПУСК СЛАЙДОВ)
         document.addEventListener('click', (e) => {
-            // Если клик по кнопке, ползунку или интерактивному слову - не листаем
             if (e.target.closest('button') || e.target.closest('input') || e.target.closest('.hover-name') || e.target.closest('.hover-term')) return;
-            
             tryAdvance();
         });
 
         document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space') {
-                e.preventDefault();
-                tryAdvance();
-            }
+            if (e.code === 'Space') { e.preventDefault(); tryAdvance(); }
         });
 
         function tryAdvance() {
-            if (!isMoving && !quizActive && state === -1) {
-                advance();
-            } else if (!isMoving && !quizActive && content[state].type !== 'quiz') {
-                advance();
-            }
-        }
-
-        // Функция для показа тултипов по клику (для телефонов)
-        window.toggleTooltip = function(el) {
-            el.classList.toggle('active');
-            // Скрыть остальные
-            document.querySelectorAll('.hover-name, .hover-term').forEach(item => {
-                if (item !== el) item.classList.remove('active');
-            });
+            if (!isMoving && !quizActive && state === -1) advance();
+            else if (!isMoving && !quizActive && content[state].type !== 'quiz') advance();
         }
 
         prompt.style.display = 'block';
@@ -375,7 +386,8 @@
             isMoving = true;
             panel.classList.remove('visible');
             prompt.style.display = 'none';
-            speedMultiplier = 20; 
+            // Скорость на мобильном ниже
+            speedMultiplier = isMobile ? 10 : 20;
 
             state++;
 
@@ -391,71 +403,116 @@
                 cosmicObject.style.top = '-300px';
 
                 setTimeout(() => {
-                    cosmicObject.style.transition = 'top 2s cubic-bezier(0.25, 1, 0.5, 1)';
+                    cosmicObject.style.transition = 'top 2.5s cubic-bezier(0.25, 1, 0.5, 1)';
                     cosmicObject.style.top = '20%';
 
                     setTimeout(() => {
                         speedMultiplier = 1; 
                         document.getElementById('info-title').innerText = content[state].title;
                         document.getElementById('info-text').innerHTML = content[state].text;
+                        setupTooltips(); 
                         panel.classList.add('visible');
                         
-                        if (!quizActive) {
-                            prompt.innerText = "КЛИКНИТЕ ДЛЯ ПРОДОЛЖЕНИЯ";
-                            prompt.style.display = 'block';
-                        }
+                        if (!quizActive) prompt.style.display = 'block';
                         isMoving = false;
                         if (content[state].title.includes("Парадоксы")) resetAchilles();
-                    }, 1500);
+                    }, 2000);
                 }, 100);
-            }, 800);
+            }, 1000);
         }
 
-        // --- КВИЗЫ ---
+        // --- УМНЫЕ ТУЛТИПЫ (РАБОТАЮТ ВЕЗДЕ) ---
+        function setupTooltips() {
+            document.querySelectorAll('.hover-name, .hover-term').forEach(el => {
+                el.addEventListener('mouseenter', showTooltip);
+                el.addEventListener('mouseleave', hideTooltip);
+                el.addEventListener('touchstart', (e) => {
+                    e.stopPropagation();
+                    // Если уже открыт этот же тултип - закрываем
+                    if (tooltip.dataset.active === el.innerText) {
+                        hideTooltip();
+                    } else {
+                        showTooltip(e);
+                        tooltip.dataset.active = el.innerText;
+                    }
+                });
+            });
+        }
+
+        function showTooltip(e) {
+            const el = e.target;
+            const imgFile = el.getAttribute('data-img');
+            const years = el.getAttribute('data-years');
+            const desc = el.getAttribute('data-desc');
+            const rect = el.getBoundingClientRect();
+            
+            const imgEl = document.getElementById('tooltip-img');
+            const textEl = document.getElementById('tooltip-text');
+
+            if (imgFile) {
+                // Добавляем путь к папке images/
+                imgEl.src = 'images/' + imgFile;
+                imgEl.style.display = 'block';
+                textEl.innerHTML = `<span class="tooltip-years">${years}</span>`;
+            } else {
+                imgEl.style.display = 'none';
+                textEl.innerHTML = desc;
+            }
+
+            // УМНОЕ ПОЗИЦИОНИРОВАНИЕ
+            const tooltipWidth = 220; // Ширина тултипа (примерно)
+            let leftPos = rect.left + rect.width / 2 - tooltipWidth / 2;
+
+            // Проверка границ экрана
+            if (leftPos < 10) leftPos = 10;
+            if (leftPos + tooltipWidth > window.innerWidth) leftPos = window.innerWidth - tooltipWidth - 10;
+
+            tooltip.style.top = (rect.top - 10 - (imgFile ? 200 : 80)) + 'px'; // Поднимаем выше если есть картинка
+            tooltip.style.left = leftPos + 'px';
+            
+            tooltip.classList.add('active');
+        }
+
+        function hideTooltip() {
+            tooltip.classList.remove('active');
+            tooltip.dataset.active = "";
+        }
+        
+        document.addEventListener('touchstart', (e) => {
+            if(!e.target.closest('.hover-name') && !e.target.closest('.hover-term')) hideTooltip();
+        });
+
+        // --- ИНТЕРАКТИВ ---
         window.checkAnswer = function(btn, isCorrect) {
             const allBtns = btn.parentElement.querySelectorAll('.quiz-btn');
             allBtns.forEach(b => b.disabled = true);
-
-            if (isCorrect) {
-                btn.classList.add('correct');
-                btn.innerText += " ✅";
-            } else {
-                btn.classList.add('wrong');
-                btn.innerText += " ❌";
-                allBtns.forEach(b => { if(b.dataset.correct === "true") b.classList.add('correct'); });
-            }
-            setTimeout(() => { quizActive = false; advance(); }, 1200);
+            if (isCorrect) { btn.classList.add('correct'); btn.innerText += " ✅"; } 
+            else { btn.classList.add('wrong'); btn.innerText += " ❌"; allBtns.forEach(b => { if(b.dataset.correct === "true") b.classList.add('correct'); }); }
+            setTimeout(() => { quizActive = false; advance(); }, 1500);
         };
-
-        // --- ИНТЕРАКТИВ ---
         let potCount = 0;
-        window.addPotential = function() {
-            potCount++; document.getElementById('pot-count').innerText = potCount;
-        }
-
+        window.addPotential = function() { potCount++; document.getElementById('pot-count').innerText = potCount; }
+        window.updateZoom = function(val) { document.getElementById('zoom-res').innerText = '0.' + '0'.repeat(val) + '1...'; }
+        window.updateDensity = function(val) { document.getElementById('density').innerText = val === '100' ? 'БЕСКОНЕЧНОСТЬ ∞' : val * 1000 + ' т/см³'; }
+        
         const newGuests = ['👽', '🤖', '👻', '🦄'];
         let guestIndex = 0;
         window.addGuest = function() {
             const track = document.getElementById('hotel-track');
-            track.style.transform = 'translateX(85px)';
+            track.style.transform = 'translateX(70px)';
             setTimeout(() => {
                 track.style.transition = 'none'; track.style.transform = 'translateX(0)';
-                const newEmoji = newGuests[guestIndex % newGuests.length];
-                guestIndex++;
-                track.insertAdjacentHTML('afterbegin', `<div class="room"><span class="room-num">1</span><span class="guest">${newEmoji}</span></div>`);
+                track.insertAdjacentHTML('afterbegin', `<div class="room"><span class="room-num">1</span><span class="guest">${newGuests[guestIndex++ % 4]}</span></div>`);
                 if (track.children.length > 4) track.removeChild(track.children[4]);
                 Array.from(track.children).forEach((room, idx) => room.querySelector('.room-num').innerText = idx + 1);
                 setTimeout(() => track.style.transition = 'transform 0.5s ease', 50);
             }, 500);
         };
-
         let achPos = 0, turPos = 50;
         function resetAchilles() { achPos = 0; turPos = 50; }
         window.stepAchilles = function() {
-            achPos = achPos + (turPos - achPos) / 2;
-            turPos += 1; 
-            document.getElementById('ach').style.left = achPos + '%';
-            document.getElementById('tur').style.left = turPos + '%';
+            achPos = achPos + (turPos - achPos) / 2; turPos += 5;
+            document.getElementById('ach').style.left = achPos + '%'; document.getElementById('tur').style.left = turPos + '%';
         };
 
         // --- ФИНАЛ ---
@@ -463,26 +520,23 @@
             prompt.style.display = 'none';
             cosmicObject.style.display = 'none';
             
-            speedMultiplier = 30; // 1. Летим быстро
+            speedMultiplier = isMobile ? 15 : 25; 
 
             setTimeout(() => {
-                // 2. Замедляемся перед дырой
-                let slow = setInterval(() => {
-                    if(speedMultiplier > 2) speedMultiplier -= 1;
-                    else clearInterval(slow);
+                let slowDownInterval = setInterval(() => {
+                    if(speedMultiplier > 2) speedMultiplier -= 0.5;
+                    else clearInterval(slowDownInterval);
                 }, 50);
 
                 const bh = document.getElementById('black-hole');
                 bh.style.display = 'block'; 
                 bh.style.transition = 'top 4s ease-out, transform 4s ease-out';
-                
                 setTimeout(() => bh.classList.add('active'), 100); 
 
                 setTimeout(() => {
-                    speedMultiplier = 50; // 3. Ускоряемся ВНУТРЬ
+                    speedMultiplier = 40; 
                     cosmicStopped = false; 
-                    
-                    ship.style.transition = 'all 2s ease-in';
+                    ship.style.transition = 'all 2.5s ease-in';
                     ship.style.bottom = '50%';
                     ship.style.transform = 'translate(-50%, 50%) rotate(720deg) scale(0)';
                     ship.style.filter = 'brightness(0)';
@@ -490,30 +544,22 @@
                     setTimeout(() => {
                         cosmicStopped = true; 
                         document.getElementById('credits').style.opacity = '1';
-
                         setTimeout(() => {
                             document.getElementById('credits').style.opacity = '0';
                             ship.style.transition = 'all 2s ease-out';
                             ship.style.bottom = '15%';
                             ship.style.transform = 'translate(-50%, 0) rotate(0deg) scale(1)';
-                            ship.style.filter = '';
-
+                            ship.style.filter = isMobile ? 'none' : 'drop-shadow(0 0 15px rgba(102, 252, 241, 0.4))';
                             setTimeout(() => {
                                 bh.classList.remove('active');
                                 setTimeout(() => { bh.style.display = 'none'; bh.style.top = '-600px'; }, 3000);
-                                cosmicStopped = false;
-                                speedMultiplier = 1; 
-                                state = -1;
-                                isMoving = false;
-                                prompt.innerText = "КЛИКНИТЕ ДЛЯ НАЧАЛА";
-                                prompt.style.display = 'block';
-                                potCount = 0; guestIndex = 0;
+                                cosmicStopped = false; speedMultiplier = 1; state = -1; isMoving = false;
+                                prompt.innerText = "НАЖМИТЕ — НАЧАТЬ"; prompt.style.display = 'block';
                             }, 1000);
-                        }, 5000);
-                    }, 2000);
-                }, 3500);
-
-            }, 2000);
+                        }, 6000);
+                    }, 2500);
+                }, 3000);
+            }, 2500);
         }
     </script>
 </body>
