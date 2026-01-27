@@ -27,28 +27,35 @@
         /* --- ПОДСКАЗКИ В ТЕКСТЕ --- */
         .hover-name, .hover-term {
             color: #ffb74d; border-bottom: 1px dashed #ffb74d; cursor: help; font-weight: bold; position: relative;
+            transition: color 0.3s;
         }
         .hover-term { color: #66fcf1; border-bottom-color: #66fcf1; }
+        .hover-name:hover { color: #fff; border-bottom-color: #fff; }
 
-        /* --- ГЛОБАЛЬНЫЙ ТУЛТИП (УМНОЕ ПОЗИЦИОНИРОВАНИЕ) --- */
+        /* --- ГЛОБАЛЬНЫЙ ТУЛТИП (ИСПРАВЛЕННЫЙ) --- */
         #global-tooltip {
-            position: fixed; /* Фиксируем относительно окна браузера */
-            background: rgba(11, 12, 16, 0.98);
-            border: 2px solid #45a29e; border-radius: 10px;
-            padding: 10px; width: 200px;
-            color: white; font-size: 0.95rem; text-align: center;
+            position: fixed; 
+            background: rgba(15, 20, 30, 0.98); /* Более плотный фон */
+            border: 2px solid #45a29e; border-radius: 12px;
+            padding: 15px; width: 240px;
+            color: white; font-size: 1rem; text-align: center;
             opacity: 0; visibility: hidden; pointer-events: none; z-index: 9999;
-            box-shadow: 0 0 25px rgba(0,0,0,0.9);
-            transition: opacity 0.2s;
-            line-height: 1.4;
+            box-shadow: 0 0 30px rgba(0,0,0,1);
+            transition: opacity 0.2s, transform 0.2s;
+            transform: translateY(10px);
         }
-        #global-tooltip img { 
+        #global-tooltip.active { opacity: 1; visibility: visible; transform: translateY(0); }
+        
+        #tooltip-img { 
             width: 100%; height: auto; 
-            border-radius: 5px; margin-bottom: 8px; 
-            display: block; border: 1px solid #333;
+            border-radius: 6px; margin-bottom: 10px; 
+            display: none; /* Скрыто по умолчанию, пока не загрузится */
+            border: 1px solid #444;
         }
-        #global-tooltip.active { opacity: 1; visibility: visible; }
-        .tooltip-years { color: #ffb74d; font-weight: bold; display: block; margin-top: 5px; font-size: 0.9rem; }
+        .tooltip-years { 
+            color: #ffb74d; font-weight: bold; display: block; 
+            margin-top: 5px; font-size: 1.1rem; border-top: 1px solid #333; padding-top: 5px;
+        }
 
         /* --- ОБЪЕКТЫ --- */
         #cosmic-object {
@@ -158,6 +165,11 @@
             p, li { font-size: 1rem; }
             .infinity-sim { flex-direction: column; }
             #black-hole { box-shadow: inset 0 0 40px #000; width: 300px; height: 300px; }
+            /* Тултип на весь экран снизу для мобилок */
+            #global-tooltip {
+                width: 90%; left: 5% !important; bottom: 10px !important; top: auto !important;
+                transform: none !important;
+            }
         }
     </style>
 </head>
@@ -187,7 +199,7 @@
     <div id="space-prompt">НАЖМИТЕ ИЛИ КОСНИТЕСЬ ЭКРАНА</div>
     
     <div id="global-tooltip">
-        <img src="" id="tooltip-img" style="display:none">
+        <img src="" id="tooltip-img" onerror="this.style.display='none'">
         <div id="tooltip-text"></div>
     </div>
 
@@ -197,10 +209,9 @@
     </div>
 
     <script>
-        // Детектор мобильного устройства
         const isMobile = window.innerWidth < 768;
 
-        // --- КОНТЕНТ (Имена файлов без пути, скрипт сам добавит папку images/) ---
+        // --- ДАННЫЕ (Локальные имена файлов) ---
         const content = [
             {
                 type: 'info', planet: '🌍', color: '#45a29e',
@@ -322,13 +333,12 @@
             }
         ];
 
-        // --- КАНВАС (ОПТИМИЗИРОВАННЫЙ) ---
+        // --- КАНВАС ---
         const canvas = document.getElementById('starfield');
         const ctx = canvas.getContext('2d');
         let width = canvas.width = window.innerWidth;
         let height = canvas.height = window.innerHeight;
 
-        // Мобильная оптимизация: в 3 раза меньше звезд
         const starCount = isMobile ? 150 : 500;
         const stars = [];
         for (let i = 0; i < starCount; i++) stars.push({ x: Math.random() * width, y: Math.random() * height, z: Math.random() * 2 + 0.5 });
@@ -340,7 +350,6 @@
             ctx.fillStyle = '#0b0c10'; ctx.fillRect(0, 0, width, height); ctx.fillStyle = '#c5c6c7';
             for (let star of stars) {
                 ctx.beginPath(); 
-                // На мобильном звезды чуть тусклее и без сложных эффектов
                 ctx.arc(star.x, star.y, isMobile ? star.z * 0.7 : star.z, 0, Math.PI * 2); 
                 ctx.fill();
                 if (!cosmicStopped) { star.y += star.z * speedMultiplier; if (star.y > height) star.y = 0; }
@@ -356,16 +365,13 @@
         let quizActive = false;
         const panel = document.getElementById('info-panel');
         const prompt = document.getElementById('space-prompt');
-        const ship = document.getElementById('ship');
         const cosmicObject = document.getElementById('cosmic-object');
         const tooltip = document.getElementById('global-tooltip');
 
         function setPlanet(emoji, color) {
-            // На мобильном убираем drop-shadow для производительности
             cosmicObject.innerHTML = `<svg viewBox="0 0 100 100" style="${isMobile ? '' : `filter: drop-shadow(0 0 40px ${color});`}"><circle cx="50" cy="50" r="48" fill="${color}" fill-opacity="0.2" stroke="${color}" stroke-width="2"/><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-size="60">${emoji}</text></svg>`;
         }
 
-        // КЛИК ПО ЭКРАНУ (ПРОПУСК СЛАЙДОВ)
         document.addEventListener('click', (e) => {
             if (e.target.closest('button') || e.target.closest('input') || e.target.closest('.hover-name') || e.target.closest('.hover-term')) return;
             tryAdvance();
@@ -386,15 +392,11 @@
             isMoving = true;
             panel.classList.remove('visible');
             prompt.style.display = 'none';
-            // Скорость на мобильном ниже
             speedMultiplier = isMobile ? 10 : 20;
-
             state++;
-
             if (state >= content.length) { finalAnimation(); return; }
 
             cosmicObject.style.top = '120vh'; 
-
             quizActive = content[state].type === 'quiz';
 
             setTimeout(() => {
@@ -412,7 +414,6 @@
                         document.getElementById('info-text').innerHTML = content[state].text;
                         setupTooltips(); 
                         panel.classList.add('visible');
-                        
                         if (!quizActive) prompt.style.display = 'block';
                         isMoving = false;
                         if (content[state].title.includes("Парадоксы")) resetAchilles();
@@ -421,20 +422,16 @@
             }, 1000);
         }
 
-        // --- УМНЫЕ ТУЛТИПЫ (РАБОТАЮТ ВЕЗДЕ) ---
+        // --- УМНЫЕ ТУЛТИПЫ ---
         function setupTooltips() {
             document.querySelectorAll('.hover-name, .hover-term').forEach(el => {
                 el.addEventListener('mouseenter', showTooltip);
                 el.addEventListener('mouseleave', hideTooltip);
+                // Для мобильных - тап работает как клик
                 el.addEventListener('touchstart', (e) => {
                     e.stopPropagation();
-                    // Если уже открыт этот же тултип - закрываем
-                    if (tooltip.dataset.active === el.innerText) {
-                        hideTooltip();
-                    } else {
-                        showTooltip(e);
-                        tooltip.dataset.active = el.innerText;
-                    }
+                    if (tooltip.dataset.active === el.innerText) hideTooltip();
+                    else { showTooltip(e); tooltip.dataset.active = el.innerText; }
                 });
             });
         }
@@ -450,25 +447,41 @@
             const textEl = document.getElementById('tooltip-text');
 
             if (imgFile) {
-                // Добавляем путь к папке images/
+                // Ищем в папке images
                 imgEl.src = 'images/' + imgFile;
-                imgEl.style.display = 'block';
+                imgEl.onload = () => { imgEl.style.display = 'block'; }
+                imgEl.onerror = () => { imgEl.style.display = 'none'; } // Если нет фото, не показываем битое
                 textEl.innerHTML = `<span class="tooltip-years">${years}</span>`;
             } else {
                 imgEl.style.display = 'none';
                 textEl.innerHTML = desc;
             }
 
-            // УМНОЕ ПОЗИЦИОНИРОВАНИЕ
-            const tooltipWidth = 220; // Ширина тултипа (примерно)
+            // Позиционирование
+            const tooltipWidth = 240;
             let leftPos = rect.left + rect.width / 2 - tooltipWidth / 2;
-
-            // Проверка границ экрана
+            
+            // Защита от выхода за экран
             if (leftPos < 10) leftPos = 10;
             if (leftPos + tooltipWidth > window.innerWidth) leftPos = window.innerWidth - tooltipWidth - 10;
 
-            tooltip.style.top = (rect.top - 10 - (imgFile ? 200 : 80)) + 'px'; // Поднимаем выше если есть картинка
-            tooltip.style.left = leftPos + 'px';
+            let topPos = rect.top - 20; 
+            // Если сверху мало места, показываем снизу
+            if (topPos < 200) topPos = rect.bottom + 10;
+            else topPos -= (imgFile ? 200 : 80);
+
+            // На мобилках всегда снизу
+            if (isMobile) {
+                tooltip.style.top = 'auto';
+                tooltip.style.bottom = '10px';
+                tooltip.style.left = '5%';
+                tooltip.style.width = '90%';
+            } else {
+                tooltip.style.top = topPos + 'px';
+                tooltip.style.left = leftPos + 'px';
+                tooltip.style.width = tooltipWidth + 'px';
+                tooltip.style.bottom = 'auto';
+            }
             
             tooltip.classList.add('active');
         }
@@ -519,7 +532,6 @@
         function finalAnimation() {
             prompt.style.display = 'none';
             cosmicObject.style.display = 'none';
-            
             speedMultiplier = isMobile ? 15 : 25; 
 
             setTimeout(() => {
@@ -536,20 +548,20 @@
                 setTimeout(() => {
                     speedMultiplier = 40; 
                     cosmicStopped = false; 
-                    ship.style.transition = 'all 2.5s ease-in';
-                    ship.style.bottom = '50%';
-                    ship.style.transform = 'translate(-50%, 50%) rotate(720deg) scale(0)';
-                    ship.style.filter = 'brightness(0)';
+                    document.getElementById('ship').style.transition = 'all 2.5s ease-in';
+                    document.getElementById('ship').style.bottom = '50%';
+                    document.getElementById('ship').style.transform = 'translate(-50%, 50%) rotate(720deg) scale(0)';
+                    document.getElementById('ship').style.filter = 'brightness(0)';
 
                     setTimeout(() => {
                         cosmicStopped = true; 
                         document.getElementById('credits').style.opacity = '1';
                         setTimeout(() => {
                             document.getElementById('credits').style.opacity = '0';
-                            ship.style.transition = 'all 2s ease-out';
-                            ship.style.bottom = '15%';
-                            ship.style.transform = 'translate(-50%, 0) rotate(0deg) scale(1)';
-                            ship.style.filter = isMobile ? 'none' : 'drop-shadow(0 0 15px rgba(102, 252, 241, 0.4))';
+                            document.getElementById('ship').style.transition = 'all 2s ease-out';
+                            document.getElementById('ship').style.bottom = '15%';
+                            document.getElementById('ship').style.transform = 'translate(-50%, 0) rotate(0deg) scale(1)';
+                            document.getElementById('ship').style.filter = isMobile ? 'none' : 'drop-shadow(0 0 15px rgba(102, 252, 241, 0.4))';
                             setTimeout(() => {
                                 bh.classList.remove('active');
                                 setTimeout(() => { bh.style.display = 'none'; bh.style.top = '-600px'; }, 3000);
