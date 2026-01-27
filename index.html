@@ -11,6 +11,7 @@
             margin: 0; overflow: hidden;
             background: #0b0c10; color: #c5c6c7;
             font-family: 'Exo 2', sans-serif; user-select: none;
+            cursor: default;
         }
 
         canvas { position: absolute; top: 0; left: 0; z-index: 1; }
@@ -18,6 +19,7 @@
         header { position: absolute; top: 15px; width: 100%; text-align: center; z-index: 100; }
         h1 { font-size: 2.5rem; color: #66fcf1; text-shadow: 0 0 15px rgba(102, 252, 241, 0.6); margin: 0; }
 
+        /* Подсказка управления */
         #space-prompt {
             position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
             font-size: 1.2rem; font-weight: 800; color: #45a29e;
@@ -29,6 +31,7 @@
         .pulse { animation: pulse 1.5s infinite; }
         @keyframes pulse { 50% { opacity: 0.5; } }
 
+        /* Космические объекты */
         #cosmic-object {
             position: absolute; top: -500px; left: 50%; transform: translateX(-50%);
             width: 300px; height: 300px; z-index: 5;
@@ -43,6 +46,7 @@
             filter: drop-shadow(0 0 15px rgba(102, 252, 241, 0.4));
         }
 
+        /* Панель информации */
         #info-panel {
             position: absolute; top: 50%; left: 50%;
             transform: translate(-50%, -50%) scale(0.9);
@@ -55,23 +59,45 @@
             transition: all 0.5s ease; backdrop-filter: blur(10px);
         }
         #info-panel.visible { opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: all; }
+        
         h2 { color: #66fcf1; font-size: 2rem; margin-top: 0; text-align: center; }
-        h3 { color: #45a29e; border-bottom: 1px solid #1f2833; padding-bottom: 5px; margin-top: 15px; }
+        h3 { color: #45a29e; border-bottom: 1px solid #1f2833; padding-bottom: 5px; margin-top: 20px; }
         p, li { font-size: 1.15rem; line-height: 1.5; color: #e0e0e0; }
+
+        /* --- ВСПЛЫВАЮЩИЕ ПОРТРЕТЫ И ПОДСКАЗКИ --- */
+        .hover-name {
+            color: #ffb74d; border-bottom: 1px dashed #ffb74d; cursor: help; position: relative; font-weight: bold;
+        }
+        .hover-term {
+            color: #66fcf1; border-bottom: 1px dashed #66fcf1; cursor: help; position: relative; font-weight: bold;
+        }
+        
+        /* Контейнер тултипа */
+        .tooltip-box {
+            position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%);
+            width: 200px; background: #0b0c10; border: 2px solid #45a29e;
+            border-radius: 10px; padding: 10px; opacity: 0; visibility: hidden;
+            transition: 0.3s; z-index: 200; pointer-events: none; box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            text-align: center;
+        }
+        .hover-name:hover .tooltip-box, .hover-term:hover .tooltip-box {
+            opacity: 1; visibility: visible; bottom: 110%;
+        }
+        .tooltip-img { width: 100%; height: auto; border-radius: 5px; margin-bottom: 5px; }
+        .tooltip-text { font-size: 0.9rem; color: #fff; }
 
         /* КВИЗЫ */
         .quiz-btn {
             display: block; width: 100%; background: #1f2833; color: #66fcf1;
             border: 2px solid #45a29e; border-radius: 8px;
             padding: 15px; font-size: 1.2rem; margin-bottom: 10px;
-            cursor: pointer; transition: 0.3s; font-family: 'Exo 2', sans-serif;
-            font-weight: bold;
+            cursor: pointer; transition: 0.3s; font-family: 'Exo 2', sans-serif; font-weight: bold;
         }
         .quiz-btn:hover { background: #45a29e; color: #0b0c10; transform: scale(1.02); }
         .quiz-btn.correct { background: #4caf50 !important; color: white !important; border-color: #4caf50; }
         .quiz-btn.wrong { background: #f44336 !important; color: white !important; border-color: #f44336; }
 
-        /* ИНТЕРАКТИВ */
+        /* ИНТЕРАКТИВНЫЕ ЭЛЕМЕНТЫ */
         .interactive-btn {
             background: #45a29e; color: #0b0c10; border: none; padding: 10px 20px;
             font-size: 1.1rem; font-weight: bold; border-radius: 10px; cursor: pointer;
@@ -79,7 +105,6 @@
         }
         .interactive-btn:hover { background: #66fcf1; transform: translateY(-3px); }
 
-        /* ОТЕЛЬ ГИЛЬБЕРТА */
         .hotel-container { overflow: hidden; width: 100%; position: relative; margin: 15px 0; }
         .hotel { display: flex; gap: 15px; transition: transform 0.5s ease; padding: 10px; }
         .room {
@@ -90,13 +115,12 @@
         .room-num { font-size: 0.8rem; color: #45a29e; position: absolute; top: 5px; }
         .guest { font-size: 2.5rem; transition: 0.5s; }
 
-        /* ИНТЕРАКТИВ: ПОТЕНЦИАЛЬНАЯ VS АКТУАЛЬНАЯ И ПОЛЗУНКИ */
         .infinity-sim { display: flex; gap: 20px; margin-top: 15px; }
         .sim-box { flex: 1; background: #1f2833; padding: 15px; border-radius: 10px; text-align: center; border: 2px solid #45a29e; }
         .sim-display { font-size: 2rem; color: #66fcf1; font-weight: bold; margin: 10px 0; height: 40px;}
         input[type=range] { width: 80%; cursor: pointer; }
 
-        /* ЧЕРНАЯ ДЫРА (СТАРТУЕТ ЗА ПРЕДЕЛАМИ ЭКРАНА СВЕРХУ) */
+        /* ЧЕРНАЯ ДЫРА */
         #black-hole {
             position: absolute; top: -600px; left: 50%; transform: translateX(-50%) scale(0.1);
             width: 600px; height: 600px; border-radius: 50%;
@@ -142,7 +166,7 @@
         <div id="info-text"></div>
     </div>
 
-    <div id="space-prompt" class="pulse">НАЖМИТЕ ПРОБЕЛ, ЧТОБЫ НАЧАТЬ</div>
+    <div id="space-prompt" class="pulse">НАЖМИТЕ ПРОБЕЛ ИЛИ КЛИКНИТЕ</div>
 
     <div id="credits">
         <h1>БЕСКОНЕЧНОСТЬ</h1>
@@ -150,7 +174,7 @@
     </div>
 
     <script>
-        // --- ДАННЫЕ И ТЕКСТЫ ---
+        // --- ДАННЫЕ (С ПОРТРЕТАМИ И ТУЛТИПАМИ) ---
         const content = [
             {
                 type: 'info', planet: '🌍', color: '#45a29e',
@@ -170,9 +194,17 @@
             {
                 type: 'info', planet: '🪐', color: '#ffb74d',
                 title: '2️⃣ История бесконечности',
-                text: `<h3>🏛 Древняя Греция</h3><p><b>Аристотель</b> считал, что бесконечность существует только как процесс. <b>Зенон Элейский</b> придумал знаменитые парадоксы (про Ахиллеса и черепаху).</p>
-                       <h3>📐 XVII век</h3><p><b>Джон Валлис</b> впервые ввёл знак ∞.</p>
-                       <h3>📊 XIX век</h3><p><b>Георг Кантор</b> доказал, что бесконечностей бывает несколько видов, и некоторые больше других.</p>`
+                text: `<h3>🏛 Древняя Греция</h3><p>
+                       <span class="hover-name">Аристотель<span class="tooltip-box"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Aristotle_Altemps_Inv8575.jpg/440px-Aristotle_Altemps_Inv8575.jpg" class="tooltip-img"><div class="tooltip-text">384–322 до н. э.</div></span></span> 
+                       считал, что бесконечность существует только как процесс. 
+                       <span class="hover-name">Зенон Элейский<span class="tooltip-box"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Zeno_of_Elea_Tibaldi_or_Carducho.jpg/440px-Zeno_of_Elea_Tibaldi_or_Carducho.jpg" class="tooltip-img"><div class="tooltip-text">ок. 490–430 до н. э.</div></span></span> 
+                       придумал знаменитые парадоксы (про Ахиллеса и черепаху).</p>
+                       <h3>📐 XVII век</h3><p>
+                       <span class="hover-name">Джон Валлис<span class="tooltip-box"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/John_Wallis_by_Sir_Godfrey_Kneller%2C_Bt.jpg/440px-John_Wallis_by_Sir_Godfrey_Kneller%2C_Bt.jpg" class="tooltip-img"><div class="tooltip-text">1616–1703</div></span></span> 
+                       впервые ввёл знак ∞.</p>
+                       <h3>📊 XIX век</h3><p>
+                       <span class="hover-name">Георг Кантор<span class="tooltip-box"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Georg_Cantor2.jpg" class="tooltip-img"><div class="tooltip-text">1845–1918</div></span></span> 
+                       доказал, что бесконечностей бывает несколько видов.</p>`
             },
             {
                 type: 'quiz', planet: '❓', color: '#e0e0e0',
@@ -199,8 +231,8 @@
                            </div>
                        </div>
                        <hr style="border-color: #45a29e;">
-                       <p><b>🔢 Счётная:</b> Элементы можно пересчитать по порядку. Примеры: натуральные числа, чётные числа, этажи в бесконечном доме.</p>
-                       <p><b>🌊 Несчётная:</b> Её невозможно пронумеровать. Примеры: все числа между 0 и 1, все точки на отрезке, вещественные числа.</p>
+                       <p><b>🔢 Счётная:</b> Элементы можно пересчитать по порядку. Примеры: натуральные числа, этажи в бесконечном доме.</p>
+                       <p><b>🌊 Несчётная:</b> Её невозможно пронумеровать. Примеры: все точки на отрезке.</p>
                        <div class="sim-box" style="margin-top: 15px;">
                            <p style="margin-top:0;"><b>Лупа бесконечности:</b> Увеличь отрезок между 0 и 1.</p>
                            <input type="range" min="1" max="10" value="1" oninput="document.getElementById('zoom-res').innerText = '0.' + '0'.repeat(this.value) + '1... и еще ∞ чисел'">
@@ -211,7 +243,7 @@
                 type: 'info', planet: '🚀', color: '#45a29e',
                 title: '4️⃣ Теории и Парадоксы',
                 text: `<h3>🏨 Парадокс отеля Гильберта</h3>
-                       <p>В отеле бесконечно много комнат, и все они заняты. Но если придёт новый гость: каждый переезжает в следующую комнату (из 1 во 2, из 2 в 3 и так до бесконечности), и первая освобождается.</p>
+                       <p>В отеле бесконечно много комнат, и все они заняты. Но если придёт новый гость: каждый переезжает в следующую комнату (из 1 во 2, из 2 в 3...), и первая освобождается.</p>
                        <div class="hotel-container">
                            <div class="hotel" id="hotel-track">
                                <div class="room"><span class="room-num">1</span><span class="guest">🐱</span></div>
@@ -224,7 +256,7 @@
                        <button class="interactive-btn" style="margin: 0 auto; display: block;" onclick="addGuest()">Заселить нового гостя!</button>
                        
                        <h3>🐢 Парадокс Ахиллеса и черепахи</h3>
-                       <p>Ахиллес быстрее, но пока он добегает до места, где была черепаха, она чуть отползает. Расстояние всегда делится, но никогда не становится нулем. В реальности он догонит, но парадокс показывает, что бесконечное деление пути ломает привычную логику.</p>
+                       <p>Ахиллес быстрее, но пока он добегает до места, где была черепаха, она чуть отползает. Расстояние всегда делится, но никогда не становится нулем.</p>
                        <div style="background: #1f2833; height: 50px; position: relative; border-radius: 25px; margin: 15px 0; overflow: hidden; border: 2px solid #45a29e;">
                            <span id="ach" style="position: absolute; font-size: 30px; left: 0%; top: 5px; transition: 0.5s;">🏃</span>
                            <span id="tur" style="position: absolute; font-size: 30px; left: 50%; top: 5px; transition: 0.5s;">🐢</span>
@@ -244,7 +276,7 @@
                 text: `<h3>📐 Математика</h3><p>Пределы и бесконечные последовательности, анализ функций, теория множеств.</p>
                        <h3>💻 Информатика</h3><p>Бесконечные циклы, алгоритмы без заранее известного конца.</p>
                        <h3>⚛ Физика и 🌌 Астрономия</h3>
-                       <p>Бесконечно малые величины, возможная бесконечность Вселенной, бесконечные расстояния и бесконечная плотность в чёрных дырах.</p>
+                       <p>Бесконечно малые величины, возможная бесконечность Вселенной, бесконечные расстояния.</p>
                        <div class="sim-box" style="margin-top: 15px; border-color: #66fcf1;">
                            <p style="margin-top:0;"><b>Симулятор Черной дыры:</b> Сжимай звезду!</p>
                            <input type="range" min="1" max="100" value="1" oninput="document.getElementById('density').innerText = this.value === '100' ? 'БЕСКОНЕЧНОСТЬ ∞' : this.value * 1000 + ' тонн/см³'">
@@ -262,7 +294,11 @@
                 type: 'info', planet: '📚', color: '#45a29e',
                 title: '6️⃣ Школа и Заключение',
                 text: `<p><b>Где бесконечность используется в школе:</b></p>
-                       <ul><li>счёт чисел и прямая линия;</li><li>дроби и графики функций;</li><li>пределы (в старших классах).</li></ul>
+                       <ul>
+                           <li>счёт чисел и прямая линия;</li>
+                           <li>дроби и графики функций;</li>
+                           <li><span class="hover-term">пределы<span class="tooltip-box" style="width: 250px;"><div class="tooltip-text">Число, к которому значение приближается, когда мы подходим всё ближе.<br>Пример: 2.9 -> 3</div></span></span> (в старших классах).</li>
+                       </ul>
                        <h3 style="color: #66fcf1; font-size: 1.5rem;">🏁 Заключение</h3>
                        <p>Бесконечность меняет наше мышление, помогает описывать сложные процессы и используется в науке, технике и космосе.</p>`
             }
@@ -305,13 +341,28 @@
             cosmicObject.innerHTML = `<svg viewBox="0 0 100 100" style="filter: drop-shadow(0 0 40px ${color});"><circle cx="50" cy="50" r="48" fill="${color}" fill-opacity="0.2" stroke="${color}" stroke-width="2"/><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-size="60">${emoji}</text></svg>`;
         }
 
+        // ОБРАБОТЧИК КЛАВИАТУРЫ
         document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space' && !isMoving && !quizActive && state === -1) {
-                advance();
-            } else if (e.code === 'Space' && !isMoving && !quizActive && content[state].type !== 'quiz') {
-                advance();
+            if (e.code === 'Space') {
+                e.preventDefault();
+                tryAdvance();
             }
         });
+
+        // ОБРАБОТЧИК КЛИКА (ДЛЯ ТЕЛЕФОНОВ)
+        document.addEventListener('click', (e) => {
+            // Если клик был по кнопке или инпуту - не переключаем слайд
+            if (e.target.closest('button') || e.target.closest('input')) return;
+            tryAdvance();
+        });
+
+        function tryAdvance() {
+            if (!isMoving && !quizActive && state === -1) {
+                advance();
+            } else if (!isMoving && !quizActive && content[state].type !== 'quiz') {
+                advance();
+            }
+        }
 
         prompt.style.display = 'block';
 
@@ -319,7 +370,7 @@
             isMoving = true;
             panel.classList.remove('visible');
             prompt.style.display = 'none';
-            speedMultiplier = 15; 
+            speedMultiplier = 20; // Быстрый полет
 
             state++;
 
@@ -345,13 +396,11 @@
                         panel.classList.add('visible');
                         
                         if (!quizActive) {
-                            prompt.innerText = "ПРОБЕЛ — ЛЕТЕТЬ ДАЛЬШЕ";
+                            prompt.innerText = "ПРОБЕЛ ИЛИ КЛИК — ЛЕТЕТЬ ДАЛЬШЕ";
                             prompt.style.display = 'block';
                         }
                         isMoving = false;
-
                         if (content[state].title.includes("Парадоксы")) resetAchilles();
-
                     }, 2000);
                 }, 100);
             }, 1000);
@@ -396,7 +445,6 @@
             }, 500);
         };
 
-        // Ахиллес и черепаха
         let achPos = 0, turPos = 50;
         function resetAchilles() { achPos = 0; turPos = 50; }
         window.stepAchilles = function() {
@@ -406,32 +454,41 @@
             document.getElementById('tur').style.left = turPos + '%';
         };
 
-        // --- ФИНАЛ: ПОЛЕТ -> ПОЯВЛЕНИЕ ДЫРЫ СВЕРХУ -> ВЛЕТАНИЕ -> ВЫЛЕТ ---
+        // --- ФИНАЛ: ПОЛЕТ -> ЗАМЕДЛЕНИЕ -> ПОЯВЛЕНИЕ ДЫРЫ -> ВЛЕТАНИЕ ---
         function finalAnimation() {
             prompt.style.display = 'none';
             cosmicObject.style.display = 'none';
             
-            // 1. КОРАБЛЬ ЛЕТИТ 3 СЕКУНДЫ В ПУСТОМ КОСМОСЕ
-            speedMultiplier = 15; 
+            // 1. БЫСТРЫЙ ПОЛЕТ (2.5 сек)
+            speedMultiplier = 25; 
 
             setTimeout(() => {
-                // 2. ДЫРА ВЫЛЕТАЕТ СВЕРХУ (КАК ПЛАНЕТЫ)
+                // 2. ЗАМЕДЛЕНИЕ ПЕРЕД ДЫРОЙ
+                let slowDownInterval = setInterval(() => {
+                    if(speedMultiplier > 2) speedMultiplier -= 1;
+                    else clearInterval(slowDownInterval);
+                }, 50);
+
+                // ДЫРА МЕДЛЕННО СПУСКАЕТСЯ
                 const bh = document.getElementById('black-hole');
                 bh.style.display = 'block'; 
-                bh.style.transition = 'top 3s cubic-bezier(0.25, 1, 0.5, 1), transform 3s ease-in';
+                bh.style.transition = 'top 4s ease-out, transform 4s ease-out';
                 
-                setTimeout(() => bh.classList.add('active'), 50); // Летит в центр
+                setTimeout(() => bh.classList.add('active'), 100); 
 
-                // 3. КОРАБЛЬ ВЛЕТАЕТ В ДЫРУ СНИЗУ ВВЕРХ
+                // 3. КОРАБЛЬ УСКОРЯЕТСЯ В ДЫРУ
                 setTimeout(() => {
-                    cosmicStopped = true; // Космос останавливается, корабль засасывает
-                    ship.style.transition = 'all 3s cubic-bezier(0.5, 0, 0.5, 1)';
-                    ship.style.bottom = '50%'; // Летит вверх в центр
-                    ship.style.transform = 'translate(-50%, 50%) rotate(1080deg) scale(0)';
+                    speedMultiplier = 40; // Эффект затягивания (звезды снова быстро)
+                    cosmicStopped = false; 
+                    
+                    ship.style.transition = 'all 2.5s ease-in';
+                    ship.style.bottom = '50%';
+                    ship.style.transform = 'translate(-50%, 50%) rotate(720deg) scale(0)';
                     ship.style.filter = 'brightness(0)';
 
                     // 4. ТИТРЫ
                     setTimeout(() => {
+                        cosmicStopped = true; // Теперь полная тьма
                         document.getElementById('credits').style.opacity = '1';
 
                         // 5. ВЫЛЕТ ОБРАТНО
@@ -444,20 +501,20 @@
 
                             setTimeout(() => {
                                 bh.classList.remove('active');
-                                setTimeout(() => { bh.style.display = 'none'; bh.style.top = '-600px'; }, 3000); // Сброс позиции
+                                setTimeout(() => { bh.style.display = 'none'; bh.style.top = '-600px'; }, 3000);
                                 cosmicStopped = false;
                                 speedMultiplier = 1; 
                                 state = -1;
                                 isMoving = false;
-                                prompt.innerText = "НАЖМИТЕ ПРОБЕЛ, ЧТОБЫ НАЧАТЬ";
+                                prompt.innerText = "ПРОБЕЛ ИЛИ КЛИК — НАЧАТЬ";
                                 prompt.style.display = 'block';
                                 potCount = 0; guestIndex = 0;
                             }, 1000);
                         }, 6000);
-                    }, 3000);
-                }, 2000); // Даем дыре 2 секунды, чтобы спуститься
+                    }, 2500);
+                }, 3000); // Время на "подлет" к дыре
 
-            }, 3000); // Пауза полета перед дырой
+            }, 2500); // Время быстрого полета
         }
     </script>
 </body>
